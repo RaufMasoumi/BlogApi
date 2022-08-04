@@ -14,7 +14,7 @@ class CustomUserTests(APITestCase):
             password='testpass123',
         )
 
-    def test_user_list_view_with_permissions(self):
+    def test_user_list_view(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('user-list'))
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -22,7 +22,7 @@ class CustomUserTests(APITestCase):
         self.assertContains(response, self.user)
         self.client.logout()
 
-    def test_user_detail_view_with_permissions(self):
+    def test_user_detail_view(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('user-detail', kwargs={'pk': self.user.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)

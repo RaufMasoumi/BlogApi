@@ -16,7 +16,7 @@ class Post(models.Model):
         ('d', 'Draft'),
     ]
     title = models.CharField(max_length=50)
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='posts')
     thumbnail = models.ImageField(upload_to='posts/', blank=True)
     description = models.TextField()
     tags = models.ManyToManyField(Tag, related_name='posts')
@@ -30,7 +30,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='submitted_comments')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='comments')
     comment = models.CharField(max_length=150)
     commented_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,7 +41,7 @@ class Comment(models.Model):
 
 class Reply(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='submitted_replies')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='replies')
     addsign = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='adds', blank=True, null=True)
     reply = models.CharField(max_length=150)
     replied_at = models.DateTimeField(auto_now_add=True)
@@ -67,6 +67,7 @@ def formatted_text(obj):
     iterable_text = iter(text)
     count = 0
     new_text = ''
+    # Maximum space is 5
     while count < 5:
         try:
             text_char = next(iterable_text)
