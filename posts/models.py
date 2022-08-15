@@ -4,10 +4,10 @@ from django.contrib.auth import get_user_model
 
 
 class Tag(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return self.title + ' tag'
+        return self.title
 
 
 class Post(models.Model):
@@ -15,9 +15,9 @@ class Post(models.Model):
         ('p', 'Published'),
         ('d', 'Draft'),
     ]
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=100)
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='posts')
-    thumbnail = models.ImageField(upload_to='posts/', blank=True)
+    thumbnail = models.ImageField(upload_to='posts/thumbnails/', blank=True)
     description = models.TextField()
     tags = models.ManyToManyField(Tag, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -25,7 +25,10 @@ class Post(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, max_length=1, default='p')
 
     def __str__(self):
-        return formatted_text(self)
+        return formatted_text(self.title)
+
+    def make_short_description(self):
+        return formatted_text(self.description, 10)
 
 
 class Comment(models.Model):
@@ -36,7 +39,10 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return formatted_text(self)
+        return formatted_text(self.comment)
+
+    def make_short_comment(self):
+        return formatted_text(self.comment, 10)
 
 
 class Reply(models.Model):
@@ -51,24 +57,20 @@ class Reply(models.Model):
         verbose_name_plural = 'Replies'
 
     def __str__(self):
-        return formatted_text(self)
+        return formatted_text(self.reply)
+
+    def make_short_reply(self):
+        return formatted_text(self.reply, 10)
 
 
 # Adds '...' to the long texts.
-# Supports Post, Comment, and Reply class objects.
-def formatted_text(obj):
-    if obj.__class__ == Post:
-        text = obj.title
-    elif obj.__class__ == Comment:
-        text = obj.comment
-    else:
-        text = obj.reply
+def formatted_text(text, maximum_spaces=5):
 
     iterable_text = iter(text)
     count = 0
     new_text = ''
-    # Maximum space is 5
-    while count < 5:
+
+    while count < maximum_spaces:
         try:
             text_char = next(iterable_text)
         except StopIteration:
@@ -83,4 +85,4 @@ def formatted_text(obj):
         etc_text = new_text + ' ...'
         return etc_text
 
-    return new_text
+    return text

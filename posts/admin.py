@@ -5,17 +5,17 @@ from .models import Post, Tag, Comment, Reply, formatted_text
 
 @admin.display(description='Title')
 def formatted_title(post):
-    return formatted_text(post)
+    return formatted_text(post.title)
 
 
 @admin.display(description='Comment')
 def formatted_comment(comment):
-    return formatted_text(comment)
+    return formatted_text(comment.comment)
 
 
 @admin.display(description='Reply')
 def formatted_reply(reply):
-    return formatted_text(reply)
+    return formatted_text(reply.reply)
 
 
 class PostAdmin(admin.ModelAdmin):
