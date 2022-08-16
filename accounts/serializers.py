@@ -1,30 +1,55 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from posts.models import Tag, Post, Comment, Reply
-from posts.nested_serializers import PostNestedSerializer, CommentNestedSerializer, ReplyNestedSerializer
+from posts.nested_serializers import PostNestedSerializer, CommentNestedSerializer, AddsignNestedSerializer, \
+    PostsCountMixin, CommentsCountMixin, RepliesCountMixin, AddsCountMixin
 
 
-class CustomUserSerializer(serializers.HyperlinkedModelSerializer):
+class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, CommentsCountMixin):
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    password_confirm = serializers.CharField(write_only=True, help_text='Required. should be same as password')
     posts_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
         fields = [
-            'url', 'username', 'email', 'first_name', 'last_name', 'posts_count', 'comments_count'
+            'profile', 'username', 'password', 'password_confirm', 'email', 'first_name', 'last_name',
+            'posts_count', 'comments_count',
         ]
+        read_only_fields = ['email', 'first_name', 'last_name']
         extra_kwargs = {
-            'url': {'view_name': 'user-detail'},
+            'password': {'write_only': True},
         }
 
-    def get_posts_count(self, obj):
-        return obj.posts.count()
+    def validate_password_confirm(self, value):
+        password = self.initial_data.get('password')
+        if not value == password:
+            message = 'Password confirmation failed! Enter the same password to confirm.'
+            raise serializers.ValidationError(message)
+        return value
 
-    def get_comments_count(self, obj):
-        return obj.comments.count()
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')
+        return super().create(validated_data)
 
 
-class UserPostListSerializer(serializers.HyperlinkedModelSerializer):
+class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin):
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    password = serializers.CharField(source='get_safe_password', read_only=True)
+    posts = PostNestedSerializer(read_only=True, many=True)
+    comments_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ['profile', 'username', 'password', 'email', 'first_name', 'last_name',
+                  'date_joined', 'posts', 'comments_count']
+        extra_kwargs = {
+            'date_joined': {'read_only': True}
+        }
+
+
+class UserPostListSerializer(serializers.HyperlinkedModelSerializer, CommentsCountMixin):
     short_description = serializers.CharField(read_only=True, source='make_short_description')
     comments_count = serializers.SerializerMethodField()
     tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True)
@@ -39,11 +64,8 @@ class UserPostListSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'write_only': True, },
         }
 
-    def get_comments_count(self, obj):
-        return obj.comments.count()
 
-
-class UserCommentListSerializer(serializers.HyperlinkedModelSerializer):
+class UserCommentListSerializer(serializers.HyperlinkedModelSerializer, RepliesCountMixin):
     post_detail = PostNestedSerializer(read_only=True, source='post')
     replies_count = serializers.SerializerMethodField()
 
@@ -56,13 +78,10 @@ class UserCommentListSerializer(serializers.HyperlinkedModelSerializer):
             'post': {'write_only': True},
         }
 
-    def get_replies_count(self, obj):
-        return obj.replies.count()
 
-
-class UserReplyListSerializer(serializers.HyperlinkedModelSerializer):
+class UserReplyListSerializer(serializers.HyperlinkedModelSerializer, AddsCountMixin):
     comment_detail = CommentNestedSerializer(read_only=True, source='comment')
-    addsign_detail = ReplyNestedSerializer(read_only=True, source='addsign')
+    addsign_detail = AddsignNestedSerializer(read_only=True, source='addsign')
     adds_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -75,11 +94,3 @@ class UserReplyListSerializer(serializers.HyperlinkedModelSerializer):
             'comment': {'write_only': True},
             'addsign': {'write_only': True},
         }
-
-    def get_adds_count(self, obj):
-        return obj.adds.count()
-
-
-def get_user_from_context(serializer_obj):
-    request = serializer_obj.context.get('request')
-    return request.user if request.user.is_authenticated else None

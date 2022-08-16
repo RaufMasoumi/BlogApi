@@ -4,16 +4,20 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAdminUser
 from posts.permissions import IsAuthorOrReadOnly
-from .serializers import CustomUserSerializer, UserPostListSerializer, UserCommentListSerializer, \
-    UserReplyListSerializer
+from .serializers import CustomUserListSerializer, CustomUserDetailSerializer, UserPostListSerializer, \
+    UserCommentListSerializer, UserReplyListSerializer
 from .permissions import IsAdminOrAuthor
 # Create your views here.
 
 
 class UserViewSet(ModelViewSet):
     queryset = get_user_model().objects.all()
-    serializer_class = CustomUserSerializer
     permission_classes = [IsAdminUser, ]
+
+    def get_serializer_class(self):
+        if self.kwargs.get('pk'):
+            return CustomUserDetailSerializer
+        return CustomUserListSerializer
 
 
 class UserPostListView(ListCreateAPIView):

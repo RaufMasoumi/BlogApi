@@ -9,3 +9,5 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+    def get_safe_password(self):
+        return '*' * len(self.password)
