@@ -3,29 +3,40 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAdminUser
-from posts.permissions import IsAuthorOrReadOnly
 from .serializers import CustomUserListSerializer, CustomUserDetailSerializer, UserPostListSerializer, \
     UserCommentListSerializer, UserReplyListSerializer
-from .permissions import IsAdminOrAuthor
+from .permissions import IsAdminOrUser, IsUserOrReadOnly, IsUserOrAdminReadOnly
 # Create your views here.
 
 
 class UserViewSet(ModelViewSet):
     queryset = get_user_model().objects.all()
-    permission_classes = [IsAdminUser, ]
 
     def get_serializer_class(self):
         if self.kwargs.get('pk'):
             return CustomUserDetailSerializer
         return CustomUserListSerializer
 
+    def get_permissions(self):
+        permissions = []
+        if self.kwargs.get('pk'):
+            permissions.append(IsAdminOrUser())
+        else:
+            permissions.append(IsAdminUser())
+        return permissions
 
-class UserPostListView(ListCreateAPIView):
-    serializer_class = UserPostListSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+
+class GetUserObjMixin:
+    request = None
+    kwargs = None
 
     def get_user_obj(self):
         return get_user(self, or_from_request=True)
+
+
+class UserPostListView(ListCreateAPIView, GetUserObjMixin):
+    serializer_class = UserPostListSerializer
+    permission_classes = [IsUserOrReadOnly, ]
 
     def get_queryset(self):
         user = self.get_user_obj()
@@ -35,12 +46,9 @@ class UserPostListView(ListCreateAPIView):
         serializer.save(author=self.get_user_obj())
 
 
-class UserCommentListView(ListCreateAPIView):
+class UserCommentListView(ListCreateAPIView, GetUserObjMixin):
     serializer_class = UserCommentListSerializer
-    permission_classes = [IsAdminOrAuthor, ]
-
-    def get_user_obj(self):
-        return get_user(self, or_from_request=True)
+    permission_classes = [IsUserOrAdminReadOnly, ]
 
     def get_queryset(self):
         user = self.get_user_obj()
@@ -50,12 +58,9 @@ class UserCommentListView(ListCreateAPIView):
         serializer.save(author=self.get_user_obj())
 
 
-class UserReplyListView(ListCreateAPIView):
+class UserReplyListView(ListCreateAPIView, GetUserObjMixin):
     serializer_class = UserReplyListSerializer
-    permission_classes = [IsAdminOrAuthor, ]
-
-    def get_user_obj(self):
-        return get_user(self, or_from_request=True)
+    permission_classes = [IsUserOrAdminReadOnly, ]
 
     def get_queryset(self):
         user = self.get_user_obj()
@@ -74,4 +79,3 @@ def get_user(view_obj, or_from_request=False):
         user_pk = view_obj.request.user.pk
 
     return get_object_or_404(get_user_model(), pk=user_pk)
-

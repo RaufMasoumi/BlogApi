@@ -18,4 +18,3 @@ class IsAuthorOrReadOnly(BasePermission):
             return True
 
         return False
-
