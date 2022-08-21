@@ -8,7 +8,7 @@ class IsAdminOrUser(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_staff:
             return True
-        elif request.user == obj:
+        elif obj == request.user:
             return True
 
         return False
@@ -22,7 +22,7 @@ class IsUserOrReadOnly(BasePermission):
 
         if request.method in SAFE_METHODS:
             return True
-        elif request.user == view.get_user_obj():
+        elif view.get_object() == request.user:
             return True
 
         return False
@@ -37,7 +37,7 @@ class IsUserOrAdminReadOnly(BasePermission):
 
         if request.method in SAFE_METHODS and request.user.is_staff:
             return True
-        elif request.user == view.get_user_obj():
+        elif view.get_object() == request.user:
             return True
 
         return False

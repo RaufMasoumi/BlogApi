@@ -1,11 +1,10 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
-from accounts.views import get_user
+from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from .models import Tag, Post, Comment, Reply
 from .serializers import TagSerializer, PostListSerializer, PostDetailSerializer, PostCommentListSerializer,\
     CommentDetailSerializer, CommentReplyListSerializer, ReplyDetailSerializer, ReplyAddsListSerializer
 from .permissions import IsAuthorOrReadOnly
+from .base_views import ReverseRelationListCreateView, get_from_kwargs
 # Create your views here.
 
 
@@ -27,20 +26,15 @@ class PostViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class PostCommentListView(ListCreateAPIView):
+class PostCommentListView(ReverseRelationListCreateView):
+    model_class = Post
+    reverse_model_class = Comment
     serializer_class = PostCommentListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
 
-    def get_post_obj(self):
-        return get_from_kwargs(self, Post)
-
-    def get_queryset(self):
-        post = self.get_post_obj()
-        return post.comments.all()
-
-    def perform_create(self, serializer):
-        user = get_user(self, or_from_request=True)
-        serializer.save(author=user, post=self.get_post_obj())
+    def get_perform_create_kwargs(self):
+        kwargs = {'author': self.request.user, 'post': self.get_object()}
+        return kwargs
 
 
 class PostTagListView(ListAPIView):
@@ -58,20 +52,16 @@ class CommentDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthorOrReadOnly, ]
 
 
-class CommentReplyListView(ListCreateAPIView):
+class CommentReplyListView(ReverseRelationListCreateView):
+    model_class = Comment
+    reverse_model_class = Reply
+    reverse_field_related_name = 'replies'
     serializer_class = CommentReplyListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
 
-    def get_comment_obj(self):
-        return get_from_kwargs(self, Comment)
-
-    def get_queryset(self):
-        comment = self.get_comment_obj()
-        return comment.replies.all()
-
-    def perform_create(self, serializer):
-        user = get_user(self, or_from_request=True)
-        serializer.save(author=user, comment=self.get_comment_obj())
+    def get_perform_create_kwargs(self):
+        kwargs = {'author': self.request.user, 'comment': self.get_object()}
+        return kwargs
 
 
 class ReplyDetailView(RetrieveUpdateDestroyAPIView):
@@ -80,23 +70,15 @@ class ReplyDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthorOrReadOnly, ]
 
 
-class ReplyAddsListView(ListCreateAPIView):
+class ReplyAddsListView(ReverseRelationListCreateView):
+    model_class = Reply
+    reverse_field_related_name = 'adds'
     serializer_class = ReplyAddsListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
 
-    def get_reply_obj(self):
-        return get_from_kwargs(self, Reply)
-
-    def get_queryset(self):
-        reply = self.get_reply_obj()
-        return reply.adds.all()
-
-    def perform_create(self, serializer):
-        user = get_user(self, or_from_request=True)
-        reply = self.get_reply_obj()
-        serializer.save(author=user, comment=reply.comment, addsign=reply)
-
-
-def get_from_kwargs(view_obj, get_class):
-    pk = view_obj.kwargs.get('pk')
-    return get_object_or_404(get_class, pk=pk)
+    def get_perform_create_kwargs(self):
+        kwargs = {
+            'author': self.request.user, 'comment': self.get_object().comment,
+            'addsign': self.get_object()
+        }
+        return kwargs
