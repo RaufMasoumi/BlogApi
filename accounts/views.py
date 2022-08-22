@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from posts.models import Post, Comment, Reply
 from .serializers import CustomUserListSerializer, CustomUserDetailSerializer, UserPostListSerializer, \
     UserCommentListSerializer, UserReplyListSerializer
-from .permissions import IsAdminOrUser, IsUserOrReadOnly, IsUserOrAdminReadOnly
+from .permissions import IsAdminOrIsSelf, IsUserOrReadOnly, IsUserOrAdminReadOnly
 from .base_views import UserReverseRelationListCreateView
 # Create your views here.
 
@@ -20,7 +20,7 @@ class UserViewSet(ModelViewSet):
     def get_permissions(self):
         permissions = []
         if self.kwargs.get('pk'):
-            permissions.append(IsAdminOrUser())
+            permissions.append(IsAdminOrIsSelf())
         else:
             permissions.append(IsAdminUser())
         return permissions

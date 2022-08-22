@@ -1,7 +1,7 @@
-from rest_framework.permissions import BasePermission, IsAdminUser, SAFE_METHODS
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-class IsAdminOrUser(BasePermission):
+class IsAdminOrIsSelf(BasePermission):
     """
         Checks that the requested user is the same user of the view or the user is an Admin.
     """
