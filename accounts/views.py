@@ -6,11 +6,13 @@ from .serializers import CustomUserListSerializer, CustomUserDetailSerializer, U
     UserCommentListSerializer, UserReplyListSerializer
 from .permissions import IsAdminOrIsSelf, IsUserOrReadOnly, IsUserOrAdminReadOnly
 from .base_views import UserReverseRelationListCreateView
+from .throttling import CustomUserRateThrottle
 # Create your views here.
 
 
 class UserViewSet(ModelViewSet):
     queryset = get_user_model().objects.all()
+    throttle_classes = [CustomUserRateThrottle, ]
 
     def get_serializer_class(self):
         if self.kwargs.get('pk'):
