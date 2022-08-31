@@ -4,9 +4,9 @@ info:
   version: 1.0.0
   description: All apis for a Blog!
 paths:
-  /api/v1/dj-rest-auth/login/:
+  /api/dj-rest-auth/login/:
     post:
-      operationId: dj_rest_auth_login_create
+      operationId: api_dj_rest_auth_login_create
       description: |-
         Check the credentials and return the REST Token
         if the credentials are valid and authenticated.
@@ -16,7 +16,7 @@ paths:
         Accept the following POST parameters: username, password
         Return the REST Framework Token Object's key.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -40,16 +40,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
-  /api/v1/dj-rest-auth/logout/:
+  /api/dj-rest-auth/logout/:
     post:
-      operationId: dj_rest_auth_logout_create
+      operationId: api_dj_rest_auth_logout_create
       description: |-
         Calls Django logout method and delete the Token object
         assigned to the current User object.
 
         Accepts/Returns nothing.
       tags:
-      - dj-rest-auth
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -61,16 +61,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/password/change/:
+  /api/dj-rest-auth/password/change/:
     post:
-      operationId: dj_rest_auth_password_change_create
+      operationId: api_dj_rest_auth_password_change_create
       description: |-
         Calls Django Auth SetPasswordForm save method.
 
         Accepts the following POST parameters: new_password1, new_password2
         Returns the success/fail message.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -93,16 +93,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/password/reset/:
+  /api/dj-rest-auth/password/reset/:
     post:
-      operationId: dj_rest_auth_password_reset_create
+      operationId: api_dj_rest_auth_password_reset_create
       description: |-
         Calls Django Auth PasswordResetForm save method.
 
         Accepts the following POST parameters: email
         Returns the success/fail message.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -126,9 +126,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/password/reset/confirm/:
+  /api/dj-rest-auth/password/reset/confirm/:
     post:
-      operationId: dj_rest_auth_password_reset_confirm_create
+      operationId: api_dj_rest_auth_password_reset_confirm_create
       description: |-
         Password reset e-mail link is confirmed, therefore
         this resets the user's password.
@@ -137,7 +137,7 @@ paths:
             new_password1, new_password2
         Returns the success/fail message.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -161,11 +161,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/registration/:
+  /api/dj-rest-auth/registration/:
     post:
-      operationId: dj_rest_auth_registration_create
+      operationId: api_dj_rest_auth_registration_create
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -189,11 +189,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
-  /api/v1/dj-rest-auth/registration/resend-email/:
+  /api/dj-rest-auth/registration/resend-email/:
     post:
-      operationId: dj_rest_auth_registration_resend_email_create
+      operationId: api_dj_rest_auth_registration_resend_email_create
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -216,11 +216,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/registration/verify-email/:
+  /api/dj-rest-auth/registration/verify-email/:
     post:
-      operationId: dj_rest_auth_registration_verify_email_create
+      operationId: api_dj_rest_auth_registration_verify_email_create
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -244,9 +244,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestAuthDetail'
           description: ''
-  /api/v1/dj-rest-auth/user/:
+  /api/dj-rest-auth/user/:
     get:
-      operationId: dj_rest_auth_user_retrieve
+      operationId: api_dj_rest_auth_user_retrieve
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -257,7 +257,7 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - dj-rest-auth
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -269,7 +269,7 @@ paths:
                 $ref: '#/components/schemas/UserDetails'
           description: ''
     put:
-      operationId: dj_rest_auth_user_update
+      operationId: api_dj_rest_auth_user_update
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -280,7 +280,7 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -304,7 +304,7 @@ paths:
                 $ref: '#/components/schemas/UserDetails'
           description: ''
     patch:
-      operationId: dj_rest_auth_user_partial_update
+      operationId: api_dj_rest_auth_user_partial_update
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -315,7 +315,7 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - dj-rest-auth
+      - api
       requestBody:
         content:
           application/json:
@@ -337,11 +337,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserDetails'
           description: ''
-  /api/v1/posts/:
+  /api/posts/:
     get:
-      operationId: posts_list
+      operationId: api_posts_list
+      parameters:
+      - in: query
+        name: author
+        schema:
+          type: string
+        description: Author
+      - in: query
+        name: description__icontains
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - d
+          - p
+      - in: query
+        name: title__icontains
+        schema:
+          type: string
+      - in: query
+        name: topic_icontains
+        schema:
+          type: string
+        description: Topic contains
       tags:
-      - posts
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -350,25 +400,23 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/PaginatedPostListList'
           description: ''
     post:
-      operationId: posts_create
+      operationId: api_posts_create
       tags:
-      - posts
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
         required: true
       security:
       - cookieAuth: []
@@ -378,11 +426,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/PostList'
           description: ''
-  /api/v1/posts/{id}/:
+  /api/posts/{id}/:
     get:
-      operationId: posts_retrieve
+      operationId: api_posts_retrieve
       parameters:
       - in: path
         name: id
@@ -391,7 +439,7 @@ paths:
         description: A unique integer value identifying this post.
         required: true
       tags:
-      - posts
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -400,10 +448,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/PostList'
           description: ''
     put:
-      operationId: posts_update
+      operationId: api_posts_update
       parameters:
       - in: path
         name: id
@@ -412,18 +460,18 @@ paths:
         description: A unique integer value identifying this post.
         required: true
       tags:
-      - posts
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Post'
+              $ref: '#/components/schemas/PostList'
         required: true
       security:
       - cookieAuth: []
@@ -433,10 +481,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/PostList'
           description: ''
     patch:
-      operationId: posts_partial_update
+      operationId: api_posts_partial_update
       parameters:
       - in: path
         name: id
@@ -445,18 +493,18 @@ paths:
         description: A unique integer value identifying this post.
         required: true
       tags:
-      - posts
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPost'
+              $ref: '#/components/schemas/PatchedPostList'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPost'
+              $ref: '#/components/schemas/PatchedPostList'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPost'
+              $ref: '#/components/schemas/PatchedPostList'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -465,10 +513,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: '#/components/schemas/PostList'
           description: ''
     delete:
-      operationId: posts_destroy
+      operationId: api_posts_destroy
       parameters:
       - in: path
         name: id
@@ -477,18 +525,42 @@ paths:
         description: A unique integer value identifying this post.
         required: true
       tags:
-      - posts
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
         '204':
           description: No response body
-  /api/v1/users/:
+  /api/posts/{id}/comments/:
     get:
-      operationId: users_list
+      operationId: api_posts_comments_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
-      - users
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -497,25 +569,29 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CustomUser'
+                $ref: '#/components/schemas/PaginatedPostCommentListList'
           description: ''
     post:
-      operationId: users_create
+      operationId: api_posts_comments_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
-      - users
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/PostCommentList'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/PostCommentList'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/PostCommentList'
         required: true
       security:
       - cookieAuth: []
@@ -525,20 +601,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomUser'
+                $ref: '#/components/schemas/PostCommentList'
           description: ''
-  /api/v1/users/{id}/:
+  /api/posts/{id}/tags/:
     get:
-      operationId: users_retrieve
+      operationId: api_posts_tags_list
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this user.
         required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
-      - users
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -547,30 +634,50 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomUser'
+                $ref: '#/components/schemas/PaginatedTagList'
+          description: ''
+  /api/posts/comments/{id}/:
+    get:
+      operationId: api_posts_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
           description: ''
     put:
-      operationId: users_update
+      operationId: api_posts_comments_update
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this user.
         required: true
       tags:
-      - users
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/CommentDetail'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/CommentDetail'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomUser'
+              $ref: '#/components/schemas/CommentDetail'
         required: true
       security:
       - cookieAuth: []
@@ -580,30 +687,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomUser'
+                $ref: '#/components/schemas/CommentDetail'
           description: ''
     patch:
-      operationId: users_partial_update
+      operationId: api_posts_comments_partial_update
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this user.
         required: true
       tags:
-      - users
+      - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUser'
+              $ref: '#/components/schemas/PatchedCommentDetail'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUser'
+              $ref: '#/components/schemas/PatchedCommentDetail'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUser'
+              $ref: '#/components/schemas/PatchedCommentDetail'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -612,53 +718,1267 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomUser'
+                $ref: '#/components/schemas/CommentDetail'
           description: ''
     delete:
-      operationId: users_destroy
+      operationId: api_posts_comments_destroy
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this user.
         required: true
       tags:
-      - users
+      - api
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
         '204':
           description: No response body
+  /api/posts/comments/{id}/replies/:
+    get:
+      operationId: api_posts_comments_replies_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentReplyListList'
+          description: ''
+    post:
+      operationId: api_posts_comments_replies_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentReplyList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentReplyList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentReplyList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentReplyList'
+          description: ''
+  /api/posts/comments/replies/{id}/:
+    get:
+      operationId: api_posts_comments_replies_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyDetail'
+          description: ''
+    put:
+      operationId: api_posts_comments_replies_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReplyDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReplyDetail'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyDetail'
+          description: ''
+    patch:
+      operationId: api_posts_comments_replies_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReplyDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReplyDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReplyDetail'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyDetail'
+          description: ''
+    delete:
+      operationId: api_posts_comments_replies_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/posts/comments/replies/{id}/adds/:
+    get:
+      operationId: api_posts_comments_replies_adds_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReplyAddsListList'
+          description: ''
+    post:
+      operationId: api_posts_comments_replies_adds_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyAddsList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReplyAddsList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReplyAddsList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyAddsList'
+          description: ''
+  /api/posts/tags/{id}/:
+    get:
+      operationId: api_posts_tags_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/users/:
+    get:
+      operationId: api_users_list
+      parameters:
+      - in: query
+        name: first_name
+        schema:
+          type: string
+      - in: query
+        name: first_name__icontains
+        schema:
+          type: string
+      - in: query
+        name: is_staff
+        schema:
+          type: boolean
+      - in: query
+        name: is_superuser
+        schema:
+          type: boolean
+      - in: query
+        name: last_name
+        schema:
+          type: string
+      - in: query
+        name: last_name__icontains
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: username
+        schema:
+          type: string
+      - in: query
+        name: username__icontains
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomUserListList'
+          description: ''
+    post:
+      operationId: api_users_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUserList'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: api_users_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUserList'
+          description: ''
+    put:
+      operationId: api_users_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomUserList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUserList'
+          description: ''
+    patch:
+      operationId: api_users_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomUserList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomUserList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomUserList'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUserList'
+          description: ''
+    delete:
+      operationId: api_users_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/{id}/comments/:
+    get:
+      operationId: api_users_comments_list_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserCommentListList'
+          description: ''
+    post:
+      operationId: api_users_comments_create_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCommentList'
+          description: ''
+  /api/users/{id}/posts/:
+    get:
+      operationId: api_users_posts_list_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserPostListList'
+          description: ''
+    post:
+      operationId: api_users_posts_create_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPostList'
+          description: ''
+  /api/users/{id}/replies/:
+    get:
+      operationId: api_users_replies_list_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserReplyListList'
+          description: ''
+    post:
+      operationId: api_users_replies_create_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReplyList'
+          description: ''
+  /api/users/comments/:
+    get:
+      operationId: api_users_comments_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserCommentListList'
+          description: ''
+    post:
+      operationId: api_users_comments_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCommentList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCommentList'
+          description: ''
+  /api/users/posts/:
+    get:
+      operationId: api_users_posts_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserPostListList'
+          description: ''
+    post:
+      operationId: api_users_posts_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserPostList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPostList'
+          description: ''
+  /api/users/replies/:
+    get:
+      operationId: api_users_replies_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserReplyListList'
+          description: ''
+    post:
+      operationId: api_users_replies_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserReplyList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReplyList'
+          description: ''
+  /api/v1/dj-rest-auth/password/reset/confirm/{uidb64}/{token}/:
+    post:
+      operationId: api_v1_dj_rest_auth_password_reset_confirm_create
+      description: |-
+        Password reset e-mail link is confirmed, therefore
+        this resets the user's password.
+
+        Accepts the following POST parameters: token, uid,
+            new_password1, new_password2
+        Returns the success/fail message.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+          pattern: ^[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32}$
+        required: true
+      - in: path
+        name: uidb64
+        schema:
+          type: string
+          pattern: ^[0-9A-Za-z_\-]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
 components:
   schemas:
-    CustomUser:
+    AddsignNested:
       type: object
       properties:
-        pk:
-          type: integer
+        url:
+          type: string
+          format: uri
           readOnly: true
-          title: ID
+        author:
+          type: string
+          readOnly: true
+        short_reply:
+          type: string
+      required:
+      - author
+      - short_reply
+      - url
+    CommentDetail:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        post:
+          allOf:
+          - $ref: '#/components/schemas/PostNested'
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 150
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        commented_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - comment
+      - commented_at
+      - post
+      - replies
+      - updated_at
+      - url
+    CommentNested:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          type: string
+          readOnly: true
+        short_comment:
+          type: string
+          readOnly: true
+          maxLength: 150
+        replies_count:
+          type: string
+          readOnly: true
+      required:
+      - author
+      - replies_count
+      - short_comment
+      - url
+    CommentReplyList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        addsign:
+          type: string
+          format: uri
+          writeOnly: true
+          nullable: true
+        addsign_detail:
+          allOf:
+          - $ref: '#/components/schemas/AddsignNested'
+          readOnly: true
+        reply:
+          type: string
+          maxLength: 150
+        adds_count:
+          type: string
+          readOnly: true
+        replied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - adds_count
+      - addsign_detail
+      - author
+      - replied_at
+      - reply
+      - updated_at
+      - url
+    CustomUserList:
+      type: object
+      properties:
+        profile:
+          type: string
+          format: uri
+          readOnly: true
         username:
           type: string
           description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+        password_confirm:
+          type: string
+          writeOnly: true
+          description: Required. should be same as password
         email:
           type: string
           format: email
+          readOnly: true
           title: Email address
-          maxLength: 254
         first_name:
           type: string
-          maxLength: 150
+          readOnly: true
         last_name:
           type: string
-          maxLength: 150
+          readOnly: true
+        posts_count:
+          type: string
+          readOnly: true
+        comments_count:
+          type: string
+          readOnly: true
       required:
-      - pk
+      - comments_count
+      - email
+      - first_name
+      - last_name
+      - password
+      - password_confirm
+      - posts_count
+      - profile
+      - username
+    CustomUserNested:
+      type: object
+      properties:
+        profile:
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+      required:
+      - profile
       - username
     Login:
       type: object
@@ -672,6 +1992,186 @@ components:
           type: string
       required:
       - password
+    PaginatedCommentReplyListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentReplyList'
+    PaginatedCustomUserListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomUserList'
+    PaginatedPostCommentListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostCommentList'
+    PaginatedPostListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostList'
+    PaginatedReplyAddsListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReplyAddsList'
+    PaginatedTagList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    PaginatedUserCommentListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserCommentList'
+    PaginatedUserPostListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPostList'
+    PaginatedUserReplyListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserReplyList'
     PasswordChange:
       type: object
       properties:
@@ -712,41 +2212,30 @@ components:
       - new_password2
       - token
       - uid
-    PatchedCustomUser:
+    PatchedCommentDetail:
       type: object
       properties:
-        pk:
-          type: integer
+        url:
+          type: string
+          format: uri
           readOnly: true
-          title: ID
-        username:
-          type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
-        email:
-          type: string
-          format: email
-          title: Email address
-          maxLength: 254
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-    PatchedPost:
-      type: object
-      properties:
-        title:
-          type: string
-          maxLength: 50
+        post:
+          allOf:
+          - $ref: '#/components/schemas/PostNested'
+          readOnly: true
         author:
-          type: integer
-        description:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        comment:
           type: string
-        created_at:
+          maxLength: 150
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        commented_at:
           type: string
           format: date-time
           readOnly: true
@@ -754,8 +2243,110 @@ components:
           type: string
           format: date-time
           readOnly: true
+    PatchedCustomUserList:
+      type: object
+      properties:
+        profile:
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+        password_confirm:
+          type: string
+          writeOnly: true
+          description: Required. should be same as password
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        posts_count:
+          type: string
+          readOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+    PatchedPostList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        author:
+          type: string
+          readOnly: true
+        thumbnail:
+          type: string
+          format: uri
+        description:
+          type: string
+          writeOnly: true
+        short_description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+        comments_count:
+          type: string
+          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+    PatchedReplyDetail:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        comment:
+          type: string
+          format: uri
+          readOnly: true
+        addsign:
+          allOf:
+          - $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        reply:
+          type: string
+          maxLength: 150
+        adds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        replied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedUserDetails:
       type: object
       description: User model w/o password
@@ -781,17 +2372,24 @@ components:
         last_name:
           type: string
           maxLength: 150
-    Post:
+    PostCommentList:
       type: object
       properties:
-        title:
+        url:
           type: string
-          maxLength: 50
+          format: uri
+          readOnly: true
         author:
-          type: integer
-        description:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        comment:
           type: string
-        created_at:
+          maxLength: 150
+        replies_count:
+          type: string
+          readOnly: true
+        commented_at:
           type: string
           format: date-time
           readOnly: true
@@ -799,14 +2397,65 @@ components:
           type: string
           format: date-time
           readOnly: true
+      required:
+      - author
+      - comment
+      - commented_at
+      - replies_count
+      - updated_at
+      - url
+    PostList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        author:
+          type: string
+          readOnly: true
+        thumbnail:
+          type: string
+          format: uri
+        description:
+          type: string
+          writeOnly: true
+        short_description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+        comments_count:
+          type: string
+          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
       required:
       - author
-      - created_at
+      - comments_count
       - description
+      - short_description
+      - tags
       - title
-      - updated_at
+      - url
+    PostNested:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+      required:
+      - title
+      - url
     Register:
       type: object
       properties:
@@ -827,6 +2476,102 @@ components:
       - password1
       - password2
       - username
+    ReplyAddsList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        reply:
+          type: string
+          maxLength: 150
+        adds_count:
+          type: string
+          readOnly: true
+        replied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - adds_count
+      - author
+      - replied_at
+      - reply
+      - updated_at
+      - url
+    ReplyDetail:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/CustomUserNested'
+          readOnly: true
+        comment:
+          type: string
+          format: uri
+          readOnly: true
+        addsign:
+          allOf:
+          - $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        reply:
+          type: string
+          maxLength: 150
+        adds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReplyNested'
+          readOnly: true
+        replied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - adds
+      - addsign
+      - author
+      - comment
+      - replied_at
+      - reply
+      - updated_at
+      - url
+    ReplyNested:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        author:
+          type: string
+          readOnly: true
+        short_reply:
+          type: string
+        adds_count:
+          type: string
+          readOnly: true
+      required:
+      - adds_count
+      - author
+      - short_reply
+      - url
     ResendEmailVerification:
       type: object
       properties:
@@ -846,6 +2591,19 @@ components:
       - p
       - d
       type: string
+    Tag:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 50
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostList'
+      required:
+      - posts
+      - title
     Token:
       type: object
       description: Serializer for Token model.
@@ -855,6 +2613,43 @@ components:
           maxLength: 40
       required:
       - key
+    UserCommentList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        post:
+          type: string
+          format: uri
+          writeOnly: true
+        post_detail:
+          allOf:
+          - $ref: '#/components/schemas/PostNested'
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 150
+        replies_count:
+          type: string
+          readOnly: true
+        commented_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - comment
+      - commented_at
+      - post
+      - post_detail
+      - replies_count
+      - updated_at
+      - url
     UserDetails:
       type: object
       description: User model w/o password
@@ -884,6 +2679,88 @@ components:
       - email
       - pk
       - username
+    UserPostList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        thumbnail:
+          type: string
+          format: uri
+        description:
+          type: string
+          writeOnly: true
+        short_description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+        comments_count:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - comments_count
+      - description
+      - short_description
+      - tags
+      - title
+      - url
+    UserReplyList:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        comment:
+          type: string
+          format: uri
+          writeOnly: true
+        comment_detail:
+          allOf:
+          - $ref: '#/components/schemas/CommentNested'
+          readOnly: true
+        addsign:
+          type: string
+          format: uri
+          writeOnly: true
+          nullable: true
+        addsign_detail:
+          allOf:
+          - $ref: '#/components/schemas/AddsignNested'
+          readOnly: true
+        reply:
+          type: string
+          maxLength: 150
+        adds_count:
+          type: string
+          readOnly: true
+        replied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - adds_count
+      - addsign_detail
+      - comment
+      - comment_detail
+      - replied_at
+      - reply
+      - updated_at
+      - url
     VerifyEmail:
       type: object
       properties:
