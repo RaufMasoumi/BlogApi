@@ -34,7 +34,7 @@ class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, Com
         return super().create(validated_data)
 
 
-class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin):
+class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCountMixin):
     profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
     password = serializers.CharField(source='get_safe_password', read_only=True)
     posts = PostNestedSerializer(read_only=True, many=True)
@@ -43,6 +43,21 @@ class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin
     class Meta:
         model = get_user_model()
         fields = ['profile', 'username', 'password', 'email', 'first_name', 'last_name',
+                  'date_joined', 'posts', 'comments_count']
+        extra_kwargs = {
+            'date_joined': {'read_only': True}
+        }
+
+
+class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin):
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    password = serializers.CharField(source='get_safe_password', read_only=True)
+    posts = PostNestedSerializer(read_only=True, many=True)
+    comments_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ['profile', 'username', 'password', 'email', 'first_name', 'last_name', 'phone_number',
                   'date_joined', 'posts', 'comments_count']
         extra_kwargs = {
             'date_joined': {'read_only': True}

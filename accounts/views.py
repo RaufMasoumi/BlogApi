@@ -21,7 +21,10 @@ class UserViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.kwargs.get('pk'):
-            return serializers.CustomUserDetailSerializer
+            if self.request.version == '1.0':
+                return serializers.CustomUserDetailSerializerVersion1
+            elif self.request.version == '2.0':
+                return serializers.CustomUserDetailSerializer
         return serializers.CustomUserListSerializer
 
     def get_permissions(self):

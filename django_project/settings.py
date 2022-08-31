@@ -177,7 +177,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'posts.pagination.CustomPageNumberPagination'
+    'DEFAULT_PAGINATION_CLASS': 'posts.pagination.CustomPageNumberPagination',
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    'DEFAULT_VERSION': '2.0',
+    'ALLOWED_VERSIONS': ['1.0', '2.0'],
 }
 
 # corsheaders configurations
