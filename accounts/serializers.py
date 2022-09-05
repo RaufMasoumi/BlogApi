@@ -17,7 +17,6 @@ class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, Com
             'profile', 'username', 'password', 'password_confirm', 'email', 'first_name', 'last_name',
             'posts_count', 'comments_count',
         ]
-        read_only_fields = ['email', 'first_name', 'last_name']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -31,7 +30,8 @@ class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, Com
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')
-        return super().create(validated_data)
+        instance = get_user_model().objects.create_user(**validated_data)
+        return instance
 
 
 class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCountMixin):
