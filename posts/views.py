@@ -17,7 +17,7 @@ class TagDetailView(RetrieveAPIView):
 
 
 class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by('-created_at')
     permission_classes = [IsAuthorOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'author__username', 'tags__title']
@@ -46,6 +46,9 @@ class PostCommentListView(ReverseRelationListCreateView):
         kwargs = {'author': self.request.user, 'post': self.get_object()}
         return kwargs
 
+    def order_queryset(self, queryset):
+        return queryset.order_by('-commented_at')
+
 
 class PostTagListView(ListAPIView):
     serializer_class = serializers.TagSerializer
@@ -53,7 +56,7 @@ class PostTagListView(ListAPIView):
 
     def get_queryset(self):
         post = get_from_kwargs(self, Post)
-        return post.tags.all()
+        return post.tags.all().order_by('title')
 
 
 class CommentDetailView(RetrieveUpdateDestroyAPIView):
@@ -75,6 +78,9 @@ class CommentReplyListView(ReverseRelationListCreateView):
     def get_perform_create_kwargs(self):
         kwargs = {'author': self.request.user, 'comment': self.get_object()}
         return kwargs
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('-replied_at')
 
 
 class ReplyDetailView(RetrieveUpdateDestroyAPIView):
@@ -98,3 +104,6 @@ class ReplyAddsListView(ReverseRelationListCreateView):
             'addsign': self.get_object()
         }
         return kwargs
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('-replied_at')

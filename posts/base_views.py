@@ -19,7 +19,11 @@ class ReverseRelationListCreateView(ListCreateAPIView):
     def get_queryset(self):
         obj = self.get_object()
         queryset = getattr(obj, self.get_reverse_field_related_name())
+        queryset = self.order_queryset(queryset)
         return queryset.all()
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('id')
 
     def get_perform_create_kwargs(self) -> dict:
         return {}

@@ -12,7 +12,7 @@ from . import serializers, filters
 
 
 class UserViewSet(ModelViewSet):
-    queryset = get_user_model().objects.all()
+    queryset = get_user_model().objects.all().order_by('date_joined')
     throttle_classes = [CustomUserRateThrottle, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     filterset_class = filters.CustomUserFilterSet
@@ -45,6 +45,9 @@ class UserPostListView(UserReverseRelationListCreateView):
     ordering_fields = ['created_at', 'updated_at', 'status']
     filterset_class = filters.UserPostFilterSet
 
+    def order_queryset(self, queryset):
+        return queryset.order_by('-created_at')
+
 
 class UserCommentListView(UserReverseRelationListCreateView):
     reverse_model_class = Comment
@@ -53,6 +56,9 @@ class UserCommentListView(UserReverseRelationListCreateView):
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['post', 'commented_at', 'updated_at']
     filterset_class = filters.UserCommentFilterSet
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('-commented_at')
 
 
 class UserReplyListView(UserReverseRelationListCreateView):
@@ -63,3 +69,6 @@ class UserReplyListView(UserReverseRelationListCreateView):
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['comment', 'replied_at', 'updated_at']
     filterset_class = filters.UserReplyFilterSet
+
+    def order_queryset(self, queryset):
+        return queryset.order_by('-replied_at')
