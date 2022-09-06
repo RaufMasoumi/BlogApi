@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Tag, Post, Comment, Reply
 from .permissions import IsAuthorOrReadOnly

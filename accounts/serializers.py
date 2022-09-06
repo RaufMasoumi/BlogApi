@@ -67,7 +67,7 @@ class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin
 class UserPostListSerializer(serializers.HyperlinkedModelSerializer, CommentsCountMixin):
     short_description = serializers.CharField(read_only=True, source='make_short_description')
     comments_count = serializers.SerializerMethodField()
-    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True)
+    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True, required=False)
 
     class Meta:
         model = Post
@@ -76,7 +76,7 @@ class UserPostListSerializer(serializers.HyperlinkedModelSerializer, CommentsCou
             'tags', 'comments_count', 'status',
         ]
         extra_kwargs = {
-            'description': {'write_only': True, },
+            'description': {'write_only': True, 'required': False},
         }
 
 

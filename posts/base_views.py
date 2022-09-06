@@ -11,7 +11,7 @@ class ReverseRelationListCreateView(ListCreateAPIView):
         if self.reverse_field_related_name:
             return self.reverse_field_related_name
         lower_model_class_name = self.reverse_model_class.__name__.lower()
-        return lower_model_class_name + 's'
+        return f'{lower_model_class_name}s'
 
     def get_object(self):
         return get_from_kwargs(self, self.model_class)
