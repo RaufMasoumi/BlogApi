@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from posts.models import Post, Comment, Reply
+from posts.tests import NOT_CONTAIN_TEXT
 from .models import CustomUser
 # Create your tests here.
 
@@ -38,6 +39,7 @@ class CustomUserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.user)
         self.assertContains(response, self.superuser)
+        self.assertNotContains(response, NOT_CONTAIN_TEXT)
         self.client.logout()
 
     def test_user_detail_view_with_permissions(self):
@@ -45,6 +47,7 @@ class CustomUserTests(APITestCase):
         response = self.client.get(self.user_detail)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.user)
+        self.assertNotContains(response, NOT_CONTAIN_TEXT)
         self.client.logout()
 
     def test_user_detail_view_versioning(self):
@@ -57,7 +60,7 @@ class CustomUserTests(APITestCase):
 
     def test_user_create_view_with_permissions(self):
         self.client.force_login(self.superuser)
-        post_data = {
+        data = {
             'username': 'testuser1',
             'password': 'testpass1123',
             'password_confirm': 'testpass1123',
@@ -65,11 +68,11 @@ class CustomUserTests(APITestCase):
             'first_name': 'test',
             'last_name': 'user',
         }
-        response = self.client.post(reverse('user-list'), data=post_data)
+        response = self.client.post(reverse('user-list'), data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(CustomUser.objects.count(), 3)
         created_user = CustomUser.objects.last()
-        test_data = post_data
+        test_data = data
         test_data.pop('password')
         test_data.pop('password_confirm')
         for field, value in test_data.items():
@@ -77,16 +80,16 @@ class CustomUserTests(APITestCase):
         self.client.logout()
     
     def test_user_update_view_with_permissions(self):
-        user, _ = CustomUser.objects.get_or_create(username='testuser1')
-        self.client.force_login(user)
-        update_data = {
+        will_be_updated_user, _ = CustomUser.objects.get_or_create(username='testuser1')
+        self.client.force_login(will_be_updated_user)
+        data = {
             'username': 'testuser1',
             'phone_number': '757575',
         }
-        response = self.client.put(reverse('user-detail', kwargs={'pk': user.pk}), data=update_data)
+        response = self.client.put(reverse('user-detail', kwargs={'pk': will_be_updated_user.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user.refresh_from_db()
-        self.assertEqual(user.phone_number, update_data['phone_number'])
+        will_be_updated_user.refresh_from_db()
+        self.assertEqual(will_be_updated_user.phone_number, data['phone_number'])
         self.client.logout()
 
     def test_user_delete_view_with_permissions(self):
@@ -136,6 +139,7 @@ class CustomUserReverseRelationViewsTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.post)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
         # create
         self.client.force_login(self.user)
         post_data = {'title': 'new post'}
@@ -154,6 +158,7 @@ class CustomUserReverseRelationViewsTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.comment)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
         # create
         post_data = {'post': reverse('post-detail', kwargs={'pk': self.post.pk}), 'comment': 'new comment'}
         post_response = self.client.post(path, post_data)
@@ -171,6 +176,7 @@ class CustomUserReverseRelationViewsTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.reply.reply)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
         # create
         post_data = {'comment': reverse('comment-detail', kwargs={'pk': self.comment.pk}), 'reply': 'new reply'}
         post_response = self.client.post(path, post_data)

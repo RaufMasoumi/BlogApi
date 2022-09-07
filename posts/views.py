@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Tag, Post, Comment, Reply
 from .permissions import IsAuthorOrReadOnly
@@ -14,6 +14,7 @@ from . import serializers
 class TagDetailView(RetrieveAPIView):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
+    permission_classes = [AllowAny, ]
 
 
 class PostViewSet(ModelViewSet):

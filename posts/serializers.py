@@ -8,7 +8,7 @@ class PostListSerializer(serializers.HyperlinkedModelSerializer, nested_serializ
     author = serializers.StringRelatedField()
     short_description = serializers.CharField(read_only=True, source='make_short_description')
     comments_count = serializers.SerializerMethodField()
-    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True)
+    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True, required=False)
 
     class Meta:
         model = Post
@@ -17,13 +17,13 @@ class PostListSerializer(serializers.HyperlinkedModelSerializer, nested_serializ
             'tags', 'comments_count', 'status',
         ]
         extra_kwargs = {
-            'description': {'write_only': True, },
+            'description': {'write_only': True, 'required': False},
         }
 
 
 class PostDetailSerializer(serializers.HyperlinkedModelSerializer):
     author = CustomUserNestedSerializer(read_only=True)
-    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True)
+    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True, required=False)
     comments = nested_serializers.CommentNestedSerializer(many=True, read_only=True)
 
     class Meta:
@@ -32,6 +32,9 @@ class PostDetailSerializer(serializers.HyperlinkedModelSerializer):
             'url', 'title', 'author', 'thumbnail', 'description', 'comments',
             'tags', 'created_at', 'updated_at', 'status',
         ]
+        extra_kwargs = {
+            'description': {'required': False}
+        }
 
 
 class PostCommentListSerializer(serializers.HyperlinkedModelSerializer, nested_serializers.RepliesCountMixin):

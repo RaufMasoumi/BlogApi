@@ -1,8 +1,7 @@
-from django.test import TestCase
-from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
-from rest_framework.status import HTTP_200_OK
+from rest_framework.reverse import reverse
+from rest_framework import status
 from .models import Tag, Post, Comment, Reply
 # Create your tests here.
 
@@ -25,19 +24,20 @@ class TagTests(APITestCase):
         cls.post = Post.objects.create(
             title='A test post',
             author=cls.user,
-            description='A test post description',
-            status='p',
         )
         cls.post.tags.add(cls.tag)
 
     def test_tag_model(self):
         self.assertEqual(Tag.objects.count(), 1)
         self.assertEqual(self.tag.title, 'A test tag')
+        self.assertEqual(str(self.tag), self.tag.title)
+        self.assertTrue(self.tag.posts.filter(pk=1).exists())
 
-    def test_post_tag_list_view(self):
-        response = self.client.get(reverse('post_tag_list', kwargs={'pk': self.post.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
+    def test_tag_detail_view(self):
+        response = self.client.get(reverse('tag-detail', kwargs={'pk': self.tag.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.tag.title)
+        self.assertContains(response, self.post.title)
         self.assertNotContains(response, NOT_CONTAIN_TEXT)
 
 
@@ -65,28 +65,104 @@ class PostTests(APITestCase):
 
     def test_post_list_view(self):
         response = self.client.get(reverse('post-list'))
-        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Post.objects.count(), 1)
         self.assertContains(response, self.post)
+        # list and detail serializer changing test
+        self.assertContains(response, 'comments_count')
         self.assertNotContains(response, NOT_CONTAIN_TEXT)
 
     def test_post_detail_view(self):
         response = self.client.get(reverse('post-detail', kwargs={'pk': self.post.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Post.objects.count(), 1)
         self.assertContains(response, self.post)
+        # list and detail serializer changing test
+        self.assertNotContains(response, 'comments_count')
+        self.assertContains(response, 'comments')
         self.assertNotContains(response, NOT_CONTAIN_TEXT)
 
-    def test_user_post_list_view(self):
+    def test_post_create_view_with_permissions(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse('user_post_list'))
-        response_with_pk = self.client.get(reverse('user_post_list', kwargs={'pk': self.user.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response_with_pk.status_code, HTTP_200_OK)
-        self.assertContains(response, self.post)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        data = {
+            'title': 'A new post',
+            'description': 'A new description',
+        }
+        response = self.client.post(reverse('post-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Post.objects.count(), 2)
+        created_post = Post.objects.last()
+        self.assertEqual(created_post.title, data['title'])
+        created_post.delete()
         self.client.logout()
-    
+
+    def test_post_update_view_with_permissions(self):
+        self.client.force_login(self.user)
+        will_be_updated_post, _ = Post.objects.get_or_create(title='A new post', author=self.user)
+        data = {
+            'title': 'A new post (updated)',
+        }
+        response = self.client.put(reverse('post-detail', kwargs={'pk': will_be_updated_post.pk}), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        will_be_updated_post.refresh_from_db()
+        self.assertEqual(will_be_updated_post.title, data['title'])
+        self.client.logout()
+
+    def test_post_delete_view_with_permissions(self):
+        self.client.force_login(self.user)
+        will_be_deleted_post, _ = Post.objects.get_or_create(title='A new post (updated)', author=self.user)
+        response = self.client.delete(reverse('post-detail', kwargs={'pk': will_be_deleted_post.pk}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Post.objects.count(), 1)
+        self.client.logout()
+
+
+class PostReverseRelationViewsTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123',
+        )
+        cls.post = Post.objects.create(
+            title='A test post',
+            author=cls.user,
+        )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.user,
+            comment='A test comment',
+        )
+        cls.tag = Tag.objects.create(
+            title='A test tag',
+        )
+        cls.post.tags.add(cls.tag)
+
+    def test_post_comment_list_create_view_with_permissions(self):
+        path = reverse('post-comment-list', kwargs={'pk': self.post.pk})
+        # list
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        self.assertContains(get_response, self.comment)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        # create
+        self.client.force_login(self.user)
+        post_data = {'comment': 'A new comment'}
+        post_response = self.client.post(path, post_data)
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.post.comments.count(), 2)
+        created_comment = Comment.objects.last()
+        self.assertEqual(created_comment.comment, post_data['comment'])
+        created_comment.delete()
+        self.client.logout()
+
+    def test_post_tag_list_view(self):
+        response = self.client.get(reverse('post-tag-list', kwargs={'pk': self.post.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.tag)
+        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+
 
 class CommentTests(APITestCase):
     
@@ -100,42 +176,48 @@ class CommentTests(APITestCase):
         cls.post = Post.objects.create(
             title='A test post',
             author=cls.user,
-            description='A test post description',
-            status='p',
         )
         cls.comment = Comment.objects.create(
             post=cls.post,
             author=cls.user,
             comment='A test comment',
         )
-        
+        cls.reply = Reply.objects.create(
+            comment=cls.comment,
+            author=cls.user,
+            reply='A test reply',
+        )
+
     def test_comment_model(self):
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(self.comment.comment, 'A test comment')
-        
-    def test_post_comment_list_view(self):
-        response = self.client.get(reverse('post_comment_list', kwargs={'pk': self.post.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertContains(response, self.comment.comment)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
-        
-    def test_user_comment_list_view(self):
-        self.client.force_login(self.user)
-        response = self.client.get(reverse('user_comment_list'))    
-        response_with_pk = self.client.get(reverse('user_comment_list', kwargs={'pk': self.user.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response_with_pk.status_code, HTTP_200_OK)
-        self.assertContains(response, self.comment.comment)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
-        self.client.logout()
-        
+        self.assertEqual(str(self.comment), self.comment.comment)
+
     def test_comment_detail_view(self):
-        response = self.client.get(reverse('comment_detail', kwargs={'pk': self.comment.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
+        response = self.client.get(reverse('comment-detail', kwargs={'pk': self.comment.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.comment.comment)
         self.assertNotContains(response, NOT_CONTAIN_TEXT)
-        
-    
+
+    def test_comment_reply_list_create_view_with_permissions(self):
+        path = reverse('comment-reply-list', kwargs={'pk': self.comment.pk})
+        # list
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        self.assertContains(get_response, self.reply)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        # create
+        self.client.force_login(self.user)
+        post_data = {'reply': 'A new reply'}
+        post_response = self.client.post(path, post_data)
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.comment.replies.count(), 2)
+        created_reply = Reply.objects.last()
+        self.assertEqual(created_reply.reply, post_data['reply'])
+        created_reply.delete()
+        self.client.logout()
+
+
 class ReplyTests(APITestCase):
     
     @classmethod
@@ -171,25 +253,29 @@ class ReplyTests(APITestCase):
     def test_reply_model(self):
         self.assertEqual(Reply.objects.count(), 2)
         self.assertEqual(self.reply.reply, 'A test reply')
-        
-    def test_user_reply_list_view(self):
-        self.client.force_login(self.user)
-        response = self.client.get(reverse('user_reply_list'))
-        response_with_pk = self.client.get(reverse('user_reply_list', kwargs={'pk': self.user.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response_with_pk.status_code, HTTP_200_OK)
-        self.assertContains(response, self.reply.reply)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
-        self.client.logout()
+        self.assertEqual(str(self.reply), self.reply.reply)
     
     def test_reply_detail_view(self):
-        response = self.client.get(reverse('reply_detail', kwargs={'pk': self.reply.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
+        response = self.client.get(reverse('reply-detail', kwargs={'pk': self.reply.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.reply.reply)
         self.assertNotContains(response, NOT_CONTAIN_TEXT)
 
-    def test_reply_adds_list_view(self):
-        response = self.client.get(reverse('reply_adds_list', kwargs={'pk': self.reply.pk}))
-        self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertContains(response, self.adds_reply.reply)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+    def test_reply_adds_list_create_view_with_permissions(self):
+        path = reverse('reply-adds-list', kwargs={'pk': self.reply.pk})
+        # list
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        self.assertContains(get_response, self.adds_reply)
+        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        # create
+        self.client.force_login(self.user)
+        post_data = {'reply': 'A new add reply'}
+        post_response = self.client.post(path, post_data)
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.reply.adds.count(), 2)
+        created_adds = Reply.objects.last()
+        self.assertEqual(created_adds.reply, post_data['reply'])
+        created_adds.delete()
+        self.client.logout()
+
