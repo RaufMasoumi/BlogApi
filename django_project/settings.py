@@ -195,5 +195,5 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Rauf\'s BlogApi',
     'DESCRIPTION': 'All apis for a Blog!',
-    'VERSION': '1.0.0'
+    'VERSION': '2.0'
 }

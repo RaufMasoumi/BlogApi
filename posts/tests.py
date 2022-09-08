@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 from .models import Tag, Post, Comment, Reply
+from .filters import PostFilterSet
 # Create your tests here.
 
 NOT_CONTAIN_TEXT = 'Hi there I should not be here!'
@@ -56,6 +57,11 @@ class PostTests(APITestCase):
             description='A test post description',
             status='p',
         )
+        cls.tag = Tag.objects.create(
+            title='A test tag'
+        )
+        cls.post.tags.add(cls.tag)
+        cls.post_list = reverse('post-list')
 
     def test_post_model(self):
         self.assertEqual(Post.objects.count(), 1)
@@ -64,7 +70,7 @@ class PostTests(APITestCase):
         self.assertEqual(str(self.post), self.post.title)
 
     def test_post_list_view(self):
-        response = self.client.get(reverse('post-list'))
+        response = self.client.get(self.post_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Post.objects.count(), 1)
         self.assertContains(response, self.post)
@@ -88,7 +94,7 @@ class PostTests(APITestCase):
             'title': 'A new post',
             'description': 'A new description',
         }
-        response = self.client.post(reverse('post-list'), data)
+        response = self.client.post(self.post_list, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 2)
         created_post = Post.objects.last()
@@ -279,3 +285,54 @@ class ReplyTests(APITestCase):
         created_adds.delete()
         self.client.logout()
 
+
+class CustomPageNumberPaginationTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123',
+        )
+        cls.posts = []
+        for i in range(20):
+            post = Post.objects.create(
+                title=f'Test post{i}',
+                author=cls.user
+            )
+            cls.posts.append(post)
+        cls.path = reverse('post-list')
+
+    # The pagination setting are set globally, so just testing one instance.
+    def test_pagination_activation(self):
+        response = self.client.get(self.path)
+        pagination_flags = ['count', 'next', 'previous', 'results']
+        for flag in pagination_flags:
+            self.assertContains(response, flag)
+
+    def test_pagination_default_settings(self):
+        response = self.client.get(self.path, data={'ordering': 'created_at'})
+        # the default page size is 20, so all posts will be in first page.
+        for post in self.posts:
+            self.assertContains(response, post)
+
+    def test_pagination_giving_query_params(self):
+        # page1
+        data1 = {'ordering': 'created_at', 'page_size': 10, 'page': 1}
+        response1 = self.client.get(self.path, data1)
+        for post in self.posts[:10]:
+            self.assertContains(response1, post)
+        self.assertNotContains(response1, self.posts[11])
+        # page2
+        data2 = {'ordering': 'created_at', 'page_size': 10, 'page': 2}
+        response2 = self.client.get(self.path, data2)
+        for post in self.posts[10:]:
+            self.assertContains(response2, post)
+        self.assertNotContains(response2, self.posts[9])
+
+    def test_pagination_max_page_size(self):
+        # the max_page_size is 100 so all posts will be in first page.
+        data = {'page_size': 'max'}
+        response = self.client.get(self.path, data)
+        self.assertContains(response, self.posts[0])
+        self.assertContains(response, self.posts[19])
