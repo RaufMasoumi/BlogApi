@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, override_settings
 from rest_framework.reverse import reverse
 from rest_framework import status
+from django_project.settings import REST_FRAMEWORK
 from .models import Tag, Post, Comment, Reply
-from .filters import PostFilterSet
 # Create your tests here.
 
-NOT_CONTAIN_TEXT = 'Hi there I should not be here!'
+NOT_CONTAINS_TEXT = 'Hi there I should not be here!'
+THROTTLING_OFF_SETTING = REST_FRAMEWORK
+THROTTLING_OFF_SETTING.pop('DEFAULT_THROTTLE_CLASSES')
 
 
 class TagTests(APITestCase):
@@ -39,7 +41,7 @@ class TagTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.tag.title)
         self.assertContains(response, self.post.title)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
 
 class PostTests(APITestCase):
@@ -76,7 +78,7 @@ class PostTests(APITestCase):
         self.assertContains(response, self.post)
         # list and detail serializer changing test
         self.assertContains(response, 'comments_count')
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
     def test_post_detail_view(self):
         response = self.client.get(reverse('post-detail', kwargs={'pk': self.post.pk}))
@@ -86,7 +88,7 @@ class PostTests(APITestCase):
         # list and detail serializer changing test
         self.assertNotContains(response, 'comments_count')
         self.assertContains(response, 'comments')
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
     def test_post_create_view_with_permissions(self):
         self.client.force_login(self.user)
@@ -122,8 +124,43 @@ class PostTests(APITestCase):
         self.assertEqual(Post.objects.count(), 1)
         self.client.logout()
 
+    def test_post_filter_set(self):
+        self.client.force_login(self.user)
+        not_contains_post = Post.objects.create(
+            title=NOT_CONTAINS_TEXT,
+            author=self.user,
+            description=NOT_CONTAINS_TEXT,
+            status='d',
+        )
+        # title
+        title_data = {'title__icontains': 'test'}
+        title_response = self.client.get(self.post_list, title_data)
+        self.assertContains(title_response, self.post)
+        self.assertNotContains(title_response, not_contains_post)
+        # description
+        description_data = {'description__icontains': 'test'}
+        description_response = self.client.get(self.post_list, description_data)
+        self.assertContains(description_response, self.post)
+        self.assertNotContains(description_response, not_contains_post)
+        # status
+        status_data = {'status': 'p'}
+        status_response = self.client.get(self.post_list, status_data)
+        self.assertContains(status_response, self.post)
+        self.assertNotContains(status_response, not_contains_post)
+        # author
+        author_data = {'author': 'testuser'}
+        author_response = self.client.get(self.post_list, author_data)
+        self.assertContains(author_response, self.post)
+        self.assertNotContains(author_response, not_contains_post)
+        # topic
+        topic_data = {'topic__icontains': 'test'}
+        topic_response = self.client.get(self.post_list, topic_data)
+        self.assertContains(topic_response, self.post)
+        self.assertNotContains(topic_response, not_contains_post)
+        self.client.logout()
 
-class PostReverseRelationViewsTests(APITestCase):
+
+class PostReverseRelationsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -151,7 +188,7 @@ class PostReverseRelationViewsTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.comment)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
         self.client.force_login(self.user)
         post_data = {'comment': 'A new comment'}
@@ -167,7 +204,7 @@ class PostReverseRelationViewsTests(APITestCase):
         response = self.client.get(reverse('post-tag-list', kwargs={'pk': self.post.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.tag)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
 
 class CommentTests(APITestCase):
@@ -203,7 +240,7 @@ class CommentTests(APITestCase):
         response = self.client.get(reverse('comment-detail', kwargs={'pk': self.comment.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.comment.comment)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
     def test_comment_reply_list_create_view_with_permissions(self):
         path = reverse('comment-reply-list', kwargs={'pk': self.comment.pk})
@@ -211,7 +248,7 @@ class CommentTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.reply)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
         self.client.force_login(self.user)
         post_data = {'reply': 'A new reply'}
@@ -222,6 +259,21 @@ class CommentTests(APITestCase):
         self.assertEqual(created_reply.reply, post_data['reply'])
         created_reply.delete()
         self.client.logout()
+
+    def test_comment_filter_set(self):
+        not_contains_author = get_user_model().objects.create_user(
+            username='notcontains'
+        )
+        not_contains_comment = Comment.objects.create(
+            post=self.post,
+            author=not_contains_author,
+            comment=NOT_CONTAINS_TEXT,
+        )
+        path = reverse('post-comment-list', kwargs={'pk': self.post.pk})
+        data = {'author': 'testuser'}
+        response = self.client.get(path, data)
+        self.assertContains(response, self.comment)
+        self.assertNotContains(response, not_contains_comment)
 
 
 class ReplyTests(APITestCase):
@@ -265,7 +317,7 @@ class ReplyTests(APITestCase):
         response = self.client.get(reverse('reply-detail', kwargs={'pk': self.reply.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.reply.reply)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
     def test_reply_adds_list_create_view_with_permissions(self):
         path = reverse('reply-adds-list', kwargs={'pk': self.reply.pk})
@@ -273,7 +325,7 @@ class ReplyTests(APITestCase):
         get_response = self.client.get(path)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.adds_reply)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
         self.client.force_login(self.user)
         post_data = {'reply': 'A new add reply'}
@@ -285,7 +337,23 @@ class ReplyTests(APITestCase):
         created_adds.delete()
         self.client.logout()
 
+    def test_reply_filter_set(self):
+        not_contains_author = get_user_model().objects.create_user(
+            username='notcontains',
+        )
+        not_contains_reply = Reply.objects.create(
+            comment=self.comment,
+            author=not_contains_author,
+            reply=NOT_CONTAINS_TEXT
+        )
+        path = reverse('comment-reply-list', kwargs={'pk': self.comment.pk})
+        data = {'author': 'testuser'}
+        response = self.client.get(path, data)
+        self.assertContains(response, self.reply)
+        self.assertNotContains(response, not_contains_reply)
 
+
+@override_settings(REST_FRAMEWORK=THROTTLING_OFF_SETTING)
 class CustomPageNumberPaginationTests(APITestCase):
 
     @classmethod

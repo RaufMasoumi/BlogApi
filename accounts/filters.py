@@ -18,6 +18,7 @@ class CustomUserFilterSet(filters.FilterSet):
         }
 
 
+# No need to test
 class UserPostFilterSet(PostFilterSet):
     author = None
 
@@ -28,9 +29,7 @@ class UserCommentFilterSet(filters.FilterSet):
 
     class Meta:
         model = Comment
-        fields = {
-            'comment': ['icontains', ]
-        }
+        fields = ['post_icontains', ]
 
 
 class UserReplyFilterSet(filters.FilterSet):
@@ -39,6 +38,4 @@ class UserReplyFilterSet(filters.FilterSet):
 
     class Meta:
         model = Reply
-        fields = {
-            'reply': ['icontains', ]
-        }
+        fields = ['comment_icontains', ]

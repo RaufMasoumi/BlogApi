@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from posts.models import Post, Comment, Reply
-from posts.tests import NOT_CONTAIN_TEXT
+from posts.tests import NOT_CONTAINS_TEXT
 from .models import CustomUser
 # Create your tests here.
 
@@ -13,6 +13,8 @@ class CustomUserTests(APITestCase):
         cls.superuser = CustomUser.objects.create_superuser(
             username='testsuperuser',
             password='testsuperpass123',
+            first_name='testsuperuser first name',
+            last_name='testsuperuser last name',
             phone_number='959595'
         )
         cls.user = CustomUser.objects.create_user(
@@ -21,6 +23,7 @@ class CustomUserTests(APITestCase):
             phone_number='858585',
         )
         cls.user_detail = reverse('user-detail', kwargs={'pk': cls.user.pk})
+        cls.user_list = reverse('user-list')
 
     def test_model_count(self):
         self.assertEqual(CustomUser.objects.count(), 2)
@@ -39,7 +42,7 @@ class CustomUserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.user)
         self.assertContains(response, self.superuser)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
         self.client.logout()
 
     def test_user_detail_view_with_permissions(self):
@@ -47,7 +50,7 @@ class CustomUserTests(APITestCase):
         response = self.client.get(self.user_detail)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.user)
-        self.assertNotContains(response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(response, NOT_CONTAINS_TEXT)
         self.client.logout()
 
     def test_user_detail_view_versioning(self):
@@ -101,8 +104,47 @@ class CustomUserTests(APITestCase):
         self.assertFalse(CustomUser.objects.filter(username='testuser1').exists())
         self.client.logout()
 
+    def test_user_filter_set(self):
+        self.client.force_login(self.superuser)
+        user_notcontains_text = 'notcontains'
+        not_contains_user = CustomUser.objects.create_user(
+            username=user_notcontains_text,
+            first_name=user_notcontains_text,
+            last_name=user_notcontains_text,
+        )
 
-class CustomUserReverseRelationViewsTests(APITestCase):
+        # exact and icontains supporting filters
+        # username exact
+        exact_username_data = {'username': 'testsuperuser'}
+        exact_username_response = self.client.get(self.user_list, exact_username_data)
+        self.assertContains(exact_username_response, self.superuser)
+        self.assertNotContains(exact_username_response, not_contains_user)
+        # first_name icontains
+        icontains_first_name_data = {'first_name__icontains': 'testsuperuser'}
+        icontains_first_name_response = self.client.get(self.user_list, icontains_first_name_data)
+        self.assertContains(icontains_first_name_response, self.superuser)
+        self.assertNotContains(icontains_first_name_response, not_contains_user)
+        # last_name icontains
+        icontains_last_name_data = {'last_name__icontains': 'testsuperuser'}
+        icontains_last_name_response = self.client.get(self.user_list, icontains_last_name_data)
+        self.assertContains(icontains_last_name_response, self.superuser)
+        self.assertNotContains(icontains_last_name_response, not_contains_user)
+
+        # exact supporting filters
+        # is_superuser
+        is_superuser_data = {'is_superuser': True}
+        is_superuser_response = self.client.get(self.user_list, is_superuser_data)
+        self.assertContains(is_superuser_response, self.superuser)
+        self.assertNotContains(is_superuser_response, not_contains_user)
+        # is_staff
+        is_staff_data = {'is_staff': True}
+        is_staff_response = self.client.get(self.user_list, is_staff_data)
+        self.assertContains(is_staff_response, self.superuser)
+        self.assertNotContains(is_staff_response, not_contains_user)
+        self.client.logout()
+
+
+class CustomUserReverseRelationsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -113,37 +155,43 @@ class CustomUserReverseRelationViewsTests(APITestCase):
 
         cls.post = Post.objects.create(
             author=cls.user,
-            title='testpost',
+            title='A test post',
         )
 
         cls.comment = Comment.objects.create(
             author=cls.user,
             post=cls.post,
-            comment='testcomment',
+            comment='A test comment',
         )
 
         cls.reply = Reply.objects.create(
             author=cls.user,
             comment=cls.comment,
-            reply='testreply',
+            reply='A test reply',
         )
+        cls.user_post_list = reverse('user-post-list')
+        cls.user_comment_list = reverse('user-comment-list')
+        cls.user_reply_list = reverse('user-reply-list')
 
-    def test_user_getting_views_without_pk(self):
+    def test_user_getting_views_with_or_without_pk(self):
+        with_pk_path = reverse('user-post-list', kwargs={'pk': self.user.pk})
+        with_pk_response = self.client.get(with_pk_path)
+        self.assertEqual(with_pk_response.status_code, status.HTTP_200_OK)
         self.client.force_login(self.user)
-        response = self.client.get(reverse('user-post-list'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        without_pk_response = self.client.get(self.user_post_list)
+        self.assertEqual(without_pk_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
 
     def test_user_post_list_create_view_with_permissions(self):
-        path = reverse('user-post-list', kwargs={'pk': self.user.pk})
+        self.client.force_login(self.user)
         # list
-        get_response = self.client.get(path)
+        get_response = self.client.get(self.user_post_list)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.post)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
-        self.client.force_login(self.user)
         post_data = {'title': 'new post'}
-        post_response = self.client.post(path, post_data)
+        post_response = self.client.post(self.user_post_list, post_data)
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 2)
         created_post = Post.objects.last()
@@ -153,15 +201,14 @@ class CustomUserReverseRelationViewsTests(APITestCase):
 
     def test_user_comment_list_create_view_with_permissions(self):
         self.client.force_login(self.user)
-        path = reverse('user-comment-list')
         # list
-        get_response = self.client.get(path)
+        get_response = self.client.get(self.user_comment_list)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.comment)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
         post_data = {'post': reverse('post-detail', kwargs={'pk': self.post.pk}), 'comment': 'new comment'}
-        post_response = self.client.post(path, post_data)
+        post_response = self.client.post(self.user_comment_list, post_data)
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Comment.objects.count(), 2)
         created_comment = Comment.objects.last()
@@ -169,20 +216,54 @@ class CustomUserReverseRelationViewsTests(APITestCase):
         created_comment.delete()
         self.client.logout()
 
+    def test_user_comment_filter_set(self):
+        self.client.force_login(self.user)
+        not_contains_post = Post.objects.create(
+            author=self.user,
+            title=NOT_CONTAINS_TEXT,
+        )
+        not_contains_comment = Comment.objects.create(
+            post=not_contains_post,
+            author=self.user,
+            comment=NOT_CONTAINS_TEXT,
+        )
+        data = {'post__icontains': 'test'}
+        response = self.client.get(self.user_comment_list, data)
+        self.assertContains(response, self.comment)
+        self.assertNotContains(response, not_contains_comment)
+        self.client.logout()
+
     def test_user_reply_list_create_view_with_permissions(self):
         self.client.force_login(self.user)
-        path = reverse('user-reply-list')
         # list
-        get_response = self.client.get(path)
+        get_response = self.client.get(self.user_reply_list)
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
         self.assertContains(get_response, self.reply.reply)
-        self.assertNotContains(get_response, NOT_CONTAIN_TEXT)
+        self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
         post_data = {'comment': reverse('comment-detail', kwargs={'pk': self.comment.pk}), 'reply': 'new reply'}
-        post_response = self.client.post(path, post_data)
+        post_response = self.client.post(self.user_reply_list, post_data)
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Reply.objects.count(), 2)
         created_reply = Reply.objects.last()
         self.assertEqual(created_reply.reply, post_data['reply'])
         created_reply.delete()
+        self.client.logout()
+
+    def test_user_reply_filter_set(self):
+        self.client.force_login(self.user)
+        not_contains_comment = Comment.objects.create(
+            post=self.post,
+            author=self.user,
+            comment=NOT_CONTAINS_TEXT,
+        )
+        not_contains_reply = Reply.objects.create(
+            comment=not_contains_comment,
+            author=self.user,
+            reply=NOT_CONTAINS_TEXT,
+        )
+        data = {'comment__icontains': 'test'}
+        response = self.client.get(self.user_reply_list, data)
+        self.assertContains(response, self.reply)
+        self.assertNotContains(response, not_contains_reply)
         self.client.logout()
