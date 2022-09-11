@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.core.cache import cache
 from rest_framework.test import APITestCase
 from rest_framework import status
 from posts.models import Post, Comment, Reply
@@ -8,6 +9,7 @@ from .models import CustomUser
 
 
 class CustomUserTests(APITestCase):
+
     @classmethod
     def setUpTestData(cls):
         cls.superuser = CustomUser.objects.create_superuser(
@@ -266,4 +268,35 @@ class CustomUserReverseRelationsTests(APITestCase):
         response = self.client.get(self.user_reply_list, data)
         self.assertContains(response, self.reply)
         self.assertNotContains(response, not_contains_reply)
+        self.client.logout()
+
+
+class CustomUserRateThrottleTests(APITestCase):
+
+    # to not affect other tests
+    def tearDown(self):
+        super().tearDown()
+        cache.clear()
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = CustomUser.objects.create_superuser(
+            username='testuser',
+            password='testpass123',
+        )
+        cls.path = reverse('user-list')
+
+    def test_throttle_allows_50_request_per_min(self):
+        self.client.force_login(self.user)
+        for i in range(50):
+            self.assertEqual(self.client.get(self.path).status_code, status.HTTP_200_OK)
+        self.client.logout()
+
+    def test_throttle_does_not_allow_more_that_50_request_per_min(self):
+        self.client.force_login(self.user)
+        # will-be-allowed requests.
+        for i in range(50):
+            self.client.get(self.path)
+        # will-be-restricted request.
+        self.assertEqual(self.client.get(self.path).status_code, status.HTTP_429_TOO_MANY_REQUESTS)
         self.client.logout()
