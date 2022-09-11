@@ -127,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -194,6 +194,6 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 # drf-spectacular configurations
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Rauf\'s BlogApi',
-    'DESCRIPTION': 'All apis for a Blog!',
-    'VERSION': '2.0'
+    'DESCRIPTION': 'Anything you need in your blog!',
+    'VERSION': REST_FRAMEWORK['DEFAULT_VERSION']
 }

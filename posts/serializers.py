@@ -49,7 +49,7 @@ class PostCommentListSerializer(serializers.HyperlinkedModelSerializer, nested_s
 
 
 class TagSerializer(serializers.ModelSerializer):
-    posts = PostListSerializer(many=True)
+    posts = PostListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tag

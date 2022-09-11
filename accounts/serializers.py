@@ -36,7 +36,7 @@ class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, Com
 
 class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCountMixin):
     profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
-    password = serializers.CharField(source='get_safe_password', read_only=True)
+    password = serializers.CharField(read_only=True, source='get_safe_password')
     posts = PostNestedSerializer(read_only=True, many=True)
     comments_count = serializers.SerializerMethodField()
 
@@ -51,7 +51,7 @@ class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCo
 
 class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin):
     profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
-    password = serializers.CharField(source='get_safe_password', read_only=True)
+    password = serializers.CharField(read_only=True, source='get_safe_password')
     posts = PostNestedSerializer(read_only=True, many=True)
     comments_count = serializers.SerializerMethodField()
 

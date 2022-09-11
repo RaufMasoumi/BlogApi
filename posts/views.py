@@ -68,7 +68,6 @@ class CommentDetailView(RetrieveUpdateDestroyAPIView):
 
 class CommentReplyListView(ReverseRelationListCreateView):
     model_class = Comment
-    reverse_model_class = Reply
     reverse_field_related_name = 'replies'
     serializer_class = serializers.CommentReplyListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]

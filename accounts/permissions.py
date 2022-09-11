@@ -19,7 +19,6 @@ class IsUserOrReadOnly(BasePermission):
         Checks that if the methods are safe or the requested user is the same user of the view.
     """
     def has_permission(self, request, view):
-
         if request.method in SAFE_METHODS:
             return True
         elif view.get_object() == request.user:
@@ -34,7 +33,6 @@ class IsUserOrAdminReadOnly(BasePermission):
         or the requested user is the same user of the view.
     """
     def has_permission(self, request, view):
-
         if request.method in SAFE_METHODS and request.user.is_staff:
             return True
         elif view.get_object() == request.user:
