@@ -11,6 +11,21 @@ THROTTLING_OFF_SETTING = REST_FRAMEWORK
 THROTTLING_OFF_SETTING.pop('DEFAULT_THROTTLE_CLASSES')
 
 
+class HomePageTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.path = reverse('home')
+
+    def test_home_page_status_code(self):
+        response = self.client.get(self.path)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+    def test_home_page_redirection(self):
+        response = self.client.get(self.path)
+        self.assertRedirects(response, reverse('post-list'))
+
+
 class TagTests(APITestCase):
 
     @classmethod

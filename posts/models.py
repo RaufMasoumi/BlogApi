@@ -24,6 +24,11 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=STATUS_CHOICES, max_length=1, default='p')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['id'], name='id_index')
+        ]
+
     def __str__(self):
         return formatted_text(self.title)
 

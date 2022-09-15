@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 from dj_rest_auth.views import PasswordResetConfirmView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -34,6 +35,7 @@ urlpatterns = [
     # Local
     path('api/users/', include('accounts.urls')),
     path('api/posts/', include('posts.urls')),
+    path('', RedirectView.as_view(pattern_name='post-list'), name='home'),
 
 ]
 
