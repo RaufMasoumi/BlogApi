@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Rauf's BlogApi
-  version: 1.0.0
-  description: All apis for a Blog!
+  version: '2.0'
+  description: Anything you need in your blog!
 paths:
   /api/dj-rest-auth/login/:
     post:
@@ -136,6 +136,54 @@ paths:
         Accepts the following POST parameters: token, uid,
             new_password1, new_password2
         Returns the success/fail message.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/dj-rest-auth/password/reset/confirm/{uidb64}/{token}/:
+    post:
+      operationId: api_dj_rest_auth_password_reset_confirm_create_2
+      description: |-
+        Password reset e-mail link is confirmed, therefore
+        this resets the user's password.
+
+        Accepts the following POST parameters: token, uid,
+            new_password1, new_password2
+        Returns the success/fail message.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+          pattern: ^[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32}$
+        required: true
+      - in: path
+        name: uidb64
+        schema:
+          type: string
+          pattern: ^[0-9A-Za-z_\-]+$
+        required: true
       tags:
       - api
       requestBody:
@@ -992,6 +1040,7 @@ paths:
       security:
       - cookieAuth: []
       - tokenAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -1750,54 +1799,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserReplyList'
           description: ''
-  /api/v1/dj-rest-auth/password/reset/confirm/{uidb64}/{token}/:
-    post:
-      operationId: api_v1_dj_rest_auth_password_reset_confirm_create
-      description: |-
-        Password reset e-mail link is confirmed, therefore
-        this resets the user's password.
-
-        Accepts the following POST parameters: token, uid,
-            new_password1, new_password2
-        Returns the success/fail message.
-      parameters:
-      - in: path
-        name: token
-        schema:
-          type: string
-          pattern: ^[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32}$
-        required: true
-      - in: path
-        name: uidb64
-        schema:
-          type: string
-          pattern: ^[0-9A-Za-z_\-]+$
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PasswordResetConfirm'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PasswordResetConfirm'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PasswordResetConfirm'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestAuthDetail'
-          description: ''
 components:
   schemas:
     AddsignNested:
@@ -1943,14 +1944,14 @@ components:
         email:
           type: string
           format: email
-          readOnly: true
           title: Email address
+          maxLength: 254
         first_name:
           type: string
-          readOnly: true
+          maxLength: 150
         last_name:
           type: string
-          readOnly: true
+          maxLength: 150
         posts_count:
           type: string
           readOnly: true
@@ -1959,9 +1960,6 @@ components:
           readOnly: true
       required:
       - comments_count
-      - email
-      - first_name
-      - last_name
       - password
       - password_confirm
       - posts_count
@@ -2267,14 +2265,14 @@ components:
         email:
           type: string
           format: email
-          readOnly: true
           title: Email address
+          maxLength: 254
         first_name:
           type: string
-          readOnly: true
+          maxLength: 150
         last_name:
           type: string
-          readOnly: true
+          maxLength: 150
         posts_count:
           type: string
           readOnly: true
@@ -2438,9 +2436,7 @@ components:
       required:
       - author
       - comments_count
-      - description
       - short_description
-      - tags
       - title
       - url
     PostNested:
@@ -2601,6 +2597,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PostList'
+          readOnly: true
       required:
       - posts
       - title
@@ -2709,9 +2706,7 @@ components:
           $ref: '#/components/schemas/StatusEnum'
       required:
       - comments_count
-      - description
       - short_description
-      - tags
       - title
       - url
     UserReplyList:

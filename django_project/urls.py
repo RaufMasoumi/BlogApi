@@ -43,5 +43,5 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 # for dj-rest-auth reverse not found error
-email_generating_re_path = r'^api/v1/dj-rest-auth/password/reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32})/$'
+email_generating_re_path = r'^api/dj-rest-auth/password/reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32})/$'
 urlpatterns.append(re_path(email_generating_re_path, PasswordResetConfirmView.as_view(), name='password_reset_confirm'))
