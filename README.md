@@ -2,8 +2,9 @@
 ## _Anything you need in your blog!_
 ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/RaufMasoumi/BlogApi?color=important&logo=python&logoColor=yellow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/RaufMasoumi/BlogApi/django?color=orange&logo=django) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/RaufMasoumi/BlogApi/djangorestframework?color=green) ![GitHub last commit](https://img.shields.io/github/last-commit/RaufMasoumi/BlogApi?color=brightgreen&logo=github)
 
-BlogApi is A perfect sample RESTful API project that has been written using the Django and of course Django Rest Framework.
-The goal of this project is to give you all the requirements for building a responsive blog web application using modern front-end frameworks like React JS.
+BlogApi is a perfect sample RESTful API project that has been written using the Django and of course Django Rest Framework.
+The goal of this project is to give you all the requirements for building a responsive blog web application using modern front-end frameworks like [React JS](https://reactjs.org/).
+
 You can name BlogApi as:
 - Reliable
 - Ease-to-use
