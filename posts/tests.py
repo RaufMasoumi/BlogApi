@@ -49,7 +49,7 @@ class TagTests(APITestCase):
         self.assertEqual(Tag.objects.count(), 1)
         self.assertEqual(self.tag.title, 'A test tag')
         self.assertEqual(str(self.tag), self.tag.title)
-        self.assertTrue(self.tag.posts.filter(pk=1).exists())
+        self.assertTrue(self.tag.posts.filter(pk=self.post.pk).exists())
 
     def test_tag_detail_view(self):
         response = self.client.get(reverse('tag-detail', kwargs={'pk': self.tag.pk}))
