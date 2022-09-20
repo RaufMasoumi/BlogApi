@@ -3,6 +3,14 @@ from .models import Post, Tag, Comment, Reply, formatted_text
 # Register your models here.
 
 
+class CommentInline(admin.TabularInline):
+    model = Comment
+
+
+class ReplyInline(admin.TabularInline):
+    model = Reply
+
+
 @admin.display(description='Title')
 def formatted_title(post):
     return formatted_text(post.title)
@@ -20,14 +28,17 @@ def formatted_reply(reply):
 
 class PostAdmin(admin.ModelAdmin):
     list_display = [formatted_title, 'author', 'updated_at', 'status']
+    inlines = [CommentInline, ]
 
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = [formatted_comment, 'author', 'commented_at', 'updated_at']
+    inlines = [ReplyInline, ]
 
 
 class ReplyAdmin(admin.ModelAdmin):
     list_display = [formatted_reply, 'author', 'replied_at', 'updated_at']
+    inlines = [ReplyInline, ]
 
 
 admin.site.register(Tag)
