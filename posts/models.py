@@ -3,6 +3,18 @@ from django.contrib.auth import get_user_model
 # Create your models here.
 
 
+class PostManager(models.Manager):
+
+    def draft(self):
+        return self.filter(status='d')
+
+    def user_draft(self, user):
+        return self.filter(status='d', author=user)
+
+    def published(self):
+        return self.filter(status='p')
+
+
 class Tag(models.Model):
     title = models.CharField(max_length=50, unique=True)
 
@@ -22,7 +34,8 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(choices=STATUS_CHOICES, max_length=1, default='p')
+    status = models.CharField(choices=STATUS_CHOICES, max_length=1, default='d')
+    objects = PostManager()
 
     class Meta:
         indexes = [
@@ -34,6 +47,9 @@ class Post(models.Model):
 
     def make_short_description(self):
         return formatted_text(self.description, 10)
+
+    def is_published(self):
+        return True if self.status == 'p' else False
 
 
 class Comment(models.Model):

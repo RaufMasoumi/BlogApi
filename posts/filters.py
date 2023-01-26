@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django_filters import rest_framework as filters
 from .models import Post, Comment, Reply
 
@@ -16,18 +15,6 @@ class PostFilterSet(filters.FilterSet):
             'description': icontains_list,
             'status': ['exact', ]
         }
-
-    @property
-    def qs(self):
-        parent = super().qs
-        user = getattr(self.request, 'user', None)
-        if isinstance(user, get_user_model()) and user.is_staff:
-            return parent
-
-        elif isinstance(user, get_user_model()) and not user.is_staff:
-            return parent.filter(status='p') | parent.filter(author=user)
-
-        return parent.filter(status='p')
 
 
 class CommentFilterSet(filters.FilterSet):

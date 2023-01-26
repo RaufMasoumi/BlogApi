@@ -158,6 +158,7 @@ class CustomUserReverseRelationsTests(APITestCase):
         cls.post = Post.objects.create(
             author=cls.user,
             title='A test post',
+            status='p'
         )
 
         cls.comment = Comment.objects.create(

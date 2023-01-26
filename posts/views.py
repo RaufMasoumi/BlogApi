@@ -1,11 +1,10 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Tag, Post, Comment, Reply
 from .permissions import IsAuthorOrReadOnly
-from .base_views import ReverseRelationListCreateView, get_from_kwargs
+from .base_views import ReverseRelationListCreateView, get_from_kwargs, make_post_queryset_for_user
 from .filters import PostFilterSet, CommentFilterSet, ReplyFilterSet
 from . import serializers
 # Create your views here.
@@ -17,25 +16,36 @@ class TagDetailView(RetrieveAPIView):
     permission_classes = [AllowAny, ]
 
 
-class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
+class PostListCreateView(ListCreateAPIView):
+    serializer_class = serializers.PostListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'author__username', 'tags__title']
-    ordering_fields = ['author', 'created_at', 'updated_at', 'status']
+    ordering_fields = ['author', 'created_at', 'updated_at']
     filterset_class = PostFilterSet
 
-    def get_serializer_class(self):
-        if self.kwargs.get('pk'):
-            return serializers.PostDetailSerializer
-        return serializers.PostListSerializer
+    def get_queryset(self):
+        return make_post_queryset_for_user(self.request).order_by('-created_at')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
+class PostDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthorOrReadOnly, ]
+
+    def get_serializer_class(self):
+        if self.get_object().is_published():
+            return serializers.PostDetailSerializer
+        else:
+            return serializers.DraftPostDetailSerializer
+
+    def get_queryset(self):
+        return make_post_queryset_for_user(self.request)
+
+
 class PostCommentListView(ReverseRelationListCreateView):
-    model_class = Post
+    parent_klass = Post.objects.published()
     reverse_model_class = Comment
     serializer_class = serializers.PostCommentListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
@@ -56,8 +66,8 @@ class PostTagListView(ListAPIView):
     permission_classes = [IsAuthorOrReadOnly, ]
 
     def get_queryset(self):
-        post = get_from_kwargs(self, Post)
-        return post.tags.all().order_by('title')
+        post = get_from_kwargs(self.kwargs, Post)
+        return post.tags.order_by('title')
 
 
 class CommentDetailView(RetrieveUpdateDestroyAPIView):
@@ -67,7 +77,7 @@ class CommentDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class CommentReplyListView(ReverseRelationListCreateView):
-    model_class = Comment
+    parent_klass = Comment
     reverse_field_related_name = 'replies'
     serializer_class = serializers.CommentReplyListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]
@@ -90,7 +100,7 @@ class ReplyDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class ReplyAddsListView(ReverseRelationListCreateView):
-    model_class = Reply
+    parent_klass = Reply
     reverse_field_related_name = 'adds'
     serializer_class = serializers.ReplyAddsListSerializer
     permission_classes = [IsAuthorOrReadOnly, ]

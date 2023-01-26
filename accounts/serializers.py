@@ -77,6 +77,7 @@ class UserPostListSerializer(serializers.HyperlinkedModelSerializer, CommentsCou
         ]
         extra_kwargs = {
             'description': {'write_only': True, 'required': False},
+            'status': {'read_only': True},
         }
 
 

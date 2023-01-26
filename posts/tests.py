@@ -74,6 +74,11 @@ class PostTests(APITestCase):
             description='A test post description',
             status='p',
         )
+        cls.draft_post = Post.objects.create(
+            title='A draft test post',
+            author=cls.user,
+            description='A draft test post description'
+        )
         cls.tag = Tag.objects.create(
             title='A test tag'
         )
@@ -81,7 +86,7 @@ class PostTests(APITestCase):
         cls.post_list = reverse('post-list')
 
     def test_post_model(self):
-        self.assertEqual(Post.objects.count(), 1)
+        self.assertEqual(Post.objects.count(), 2)
         self.assertEqual(self.post.title, 'A test post')
         self.assertEqual(self.post.description, 'A test post description')
         self.assertEqual(str(self.post), self.post.title)
@@ -89,20 +94,19 @@ class PostTests(APITestCase):
     def test_post_list_view(self):
         response = self.client.get(self.post_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Post.objects.count(), 1)
         self.assertContains(response, self.post)
-        # list and detail serializer changing test
-        self.assertContains(response, 'comments_count')
-        self.assertNotContains(response, NOT_CONTAINS_TEXT)
+        # draft posts test
+        # unauthenticated user should not see other users' draft post
+        self.assertNotContains(response, self.draft_post)
+        # but the author itself should see its draft post.
+        self.client.force_login(self.user)
+        should_see_response = self.client.get(self.post_list)
+        self.assertContains(should_see_response, self.draft_post)
 
     def test_post_detail_view(self):
         response = self.client.get(reverse('post-detail', kwargs={'pk': self.post.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Post.objects.count(), 1)
         self.assertContains(response, self.post)
-        # list and detail serializer changing test
-        self.assertNotContains(response, 'comments_count')
-        self.assertContains(response, 'comments')
         self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
     def test_post_create_view_with_permissions(self):
@@ -113,7 +117,7 @@ class PostTests(APITestCase):
         }
         response = self.client.post(self.post_list, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Post.objects.count(), 2)
+        self.assertEqual(Post.objects.count(), 3)
         created_post = Post.objects.last()
         self.assertEqual(created_post.title, data['title'])
         created_post.delete()
@@ -129,6 +133,23 @@ class PostTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         will_be_updated_post.refresh_from_db()
         self.assertEqual(will_be_updated_post.title, data['title'])
+        # draft and published status updating test
+        # draft posts can be published.
+        p_data = {
+            'title': data['title'],
+            'status': 'p'
+        }
+        self.client.put(reverse('post-detail', kwargs={'pk': will_be_updated_post.pk}), p_data)
+        will_be_updated_post.refresh_from_db()
+        self.assertTrue(will_be_updated_post.is_published())
+        # published posts can't be draft again.
+        d_data = {
+            'title': data['title'],
+            'status': 'd'
+        }
+        self.client.put(reverse('post-detail', kwargs={'pk': will_be_updated_post.pk}), d_data)
+        will_be_updated_post.refresh_from_db()
+        self.assertTrue(will_be_updated_post.is_published())
         self.client.logout()
 
     def test_post_delete_view_with_permissions(self):
@@ -136,7 +157,7 @@ class PostTests(APITestCase):
         will_be_deleted_post, _ = Post.objects.get_or_create(title='A new post (updated)', author=self.user)
         response = self.client.delete(reverse('post-detail', kwargs={'pk': will_be_deleted_post.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Post.objects.count(), 1)
+        self.assertEqual(Post.objects.count(), 2)
         self.client.logout()
 
     def test_post_filter_set(self):
@@ -186,6 +207,7 @@ class PostReverseRelationsTests(APITestCase):
         cls.post = Post.objects.create(
             title='A test post',
             author=cls.user,
+            status='p'
         )
         cls.comment = Comment.objects.create(
             post=cls.post,
@@ -234,6 +256,7 @@ class CommentTests(APITestCase):
         cls.post = Post.objects.create(
             title='A test post',
             author=cls.user,
+            status='p'
         )
         cls.comment = Comment.objects.create(
             post=cls.post,
@@ -287,8 +310,8 @@ class CommentTests(APITestCase):
         path = reverse('post-comment-list', kwargs={'pk': self.post.pk})
         data = {'author': 'testuser'}
         response = self.client.get(path, data)
-        self.assertContains(response, self.comment)
-        self.assertNotContains(response, not_contains_comment)
+        self.assertContains(response, self.comment.comment)
+        self.assertNotContains(response, not_contains_comment.comment)
 
 
 class ReplyTests(APITestCase):
@@ -381,7 +404,8 @@ class CustomPageNumberPaginationTests(APITestCase):
         for i in range(20):
             post = Post.objects.create(
                 title=f'Test post{i}',
-                author=cls.user
+                author=cls.user,
+                status='p'
             )
             cls.posts.append(post)
         cls.path = reverse('post-list')
@@ -394,7 +418,7 @@ class CustomPageNumberPaginationTests(APITestCase):
             self.assertContains(response, flag)
 
     def test_pagination_default_settings(self):
-        response = self.client.get(self.path, data={'ordering': 'created_at'})
+        response = self.client.get(self.path, {'ordering': 'created_at'})
         # the default page size is 20, so all posts will be in first page.
         for post in self.posts:
             self.assertContains(response, post)

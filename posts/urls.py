@@ -1,13 +1,11 @@
 from django.urls import path
-from rest_framework.routers import SimpleRouter
-from .views import TagDetailView, PostViewSet, PostCommentListView, PostTagListView, \
+from .views import TagDetailView, PostListCreateView, PostDetailUpdateDeleteView, PostCommentListView, PostTagListView,\
     CommentReplyListView, CommentDetailView, ReplyDetailView, ReplyAddsListView
-
-router = SimpleRouter()
-router.register('', PostViewSet)
 
 
 urlpatterns = [
+    path('', PostListCreateView.as_view(), name='post-list'),
+    path('<int:pk>/', PostDetailUpdateDeleteView.as_view(), name='post-detail'),
     path('tags/<int:pk>/', TagDetailView.as_view(), name='tag-detail'),
     path('<int:pk>/comments/', PostCommentListView.as_view(), name='post-comment-list'),
     path('<int:pk>/tags/', PostTagListView.as_view(), name='post-tag-list'),
@@ -17,4 +15,4 @@ urlpatterns = [
     path('comments/replies/<int:pk>/adds/', ReplyAddsListView.as_view(), name='reply-adds-list'),
 ]
 
-urlpatterns += router.urls
+# urlpatterns += router.urls

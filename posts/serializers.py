@@ -18,6 +18,7 @@ class PostListSerializer(serializers.HyperlinkedModelSerializer, nested_serializ
         ]
         extra_kwargs = {
             'description': {'write_only': True, 'required': False},
+            'status': {'read_only': True},
         }
 
 
@@ -33,7 +34,16 @@ class PostDetailSerializer(serializers.HyperlinkedModelSerializer):
             'tags', 'created_at', 'updated_at', 'status',
         ]
         extra_kwargs = {
-            'description': {'required': False}
+            'description': {'required': False},
+            'status': {'read_only': True},
+        }
+
+
+class DraftPostDetailSerializer(PostDetailSerializer):
+    class Meta(PostDetailSerializer.Meta):
+        extra_kwargs = {
+            # status changing must be in the draft.
+            'description': {'required': False},
         }
 
 

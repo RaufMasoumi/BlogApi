@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListCreateAPIView
+from posts.models import Post
 
 
 class ReverseRelationListCreateView(ListCreateAPIView):
-    model_class = None
+    parent_klass = None
     reverse_model_class = None
     reverse_field_related_name = None
 
@@ -14,7 +15,7 @@ class ReverseRelationListCreateView(ListCreateAPIView):
         return f'{lower_model_class_name}s'
 
     def get_object(self):
-        return get_from_kwargs(self, self.model_class)
+        return get_from_kwargs(self.kwargs, self.parent_klass)
 
     def get_queryset(self):
         obj = self.get_object()
@@ -34,6 +35,18 @@ class ReverseRelationListCreateView(ListCreateAPIView):
             serializer.save(**kwargs)
 
 
-def get_from_kwargs(view_obj, get_class):
-    pk = view_obj.kwargs.get('pk')
-    return get_object_or_404(get_class, pk=pk)
+def make_post_queryset_for_user(request):
+    if request.user.is_staff:
+        return Post.objects.all()
+    else:
+        published_queryset = Post.objects.published()
+        if request.user.is_authenticated:
+            draft_queryset = Post.objects.user_draft(request.user)
+            return published_queryset | draft_queryset
+
+        return published_queryset
+
+
+def get_from_kwargs(lookup_dict, get_klass):
+    pk = lookup_dict.get('pk')
+    return get_object_or_404(get_klass, pk=pk)
