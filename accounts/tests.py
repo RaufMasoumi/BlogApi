@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.core.cache import cache
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
 from posts.models import Post, Comment, Reply
@@ -150,7 +151,7 @@ class CustomUserReverseRelationsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = CustomUser.objects.create_user(
+        cls.user = get_user_model().objects.create_user(
             username='testuser',
             password='testpass123',
         )
@@ -193,7 +194,9 @@ class CustomUserReverseRelationsTests(APITestCase):
         self.assertContains(get_response, self.post)
         self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
-        post_data = {'title': 'new post'}
+        post_data = {
+            'title': 'new post'
+        }
         post_response = self.client.post(self.user_post_list, post_data)
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 2)
@@ -210,7 +213,10 @@ class CustomUserReverseRelationsTests(APITestCase):
         self.assertContains(get_response, self.comment)
         self.assertNotContains(get_response, NOT_CONTAINS_TEXT)
         # create
-        post_data = {'post': reverse('post-detail', kwargs={'pk': self.post.pk}), 'comment': 'new comment'}
+        post_data = {
+            'post': reverse('post-detail', kwargs={'pk': self.post.pk}),
+            'comment': 'new comment'
+        }
         post_response = self.client.post(self.user_comment_list, post_data)
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Comment.objects.count(), 2)
@@ -272,6 +278,84 @@ class CustomUserReverseRelationsTests(APITestCase):
         self.client.logout()
 
 
+class PermissionTests(APITestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser = get_user_model().objects.create_superuser(
+            username='testsuperuser',
+            password='testsuperpass123'
+        )
+        cls.self_user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        cls.not_self_user = get_user_model().objects.create_user(
+            username='testuser1',
+            password='testpass1123'
+        )
+        cls.has_is_self_or_admin_permission_view_path = reverse('user-detail', kwargs={'pk': cls.self_user.pk})
+        cls.has_is_self_or_read_only_permission_view_path = reverse('user-post-list', kwargs={'pk': cls.self_user.pk})
+        cls.has_is_self_or_admin_read_only_permission_view_path = reverse('user-comment-list', kwargs={'pk': cls.self_user.pk})
+
+    def test_is_self_or_admin_permission(self):
+        # not self and not admin
+        self.client.force_login(self.not_self_user)
+        no_response = self.client.get(self.has_is_self_or_admin_permission_view_path)
+        self.assertEqual(no_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.client.logout()
+        # self
+        self.client.force_login(self.self_user)
+        self_response = self.client.get(self.has_is_self_or_admin_permission_view_path)
+        self.assertEqual(self_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+        # admin
+        self.client.force_login(self.superuser)
+        admin_response = self.client.get(self.has_is_self_or_admin_permission_view_path)
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+
+    def test_is_self_or_read_only_permission(self):
+        self.client.force_login(self.not_self_user)
+        # not self and not safe request
+        no_response = self.client.post(self.has_is_self_or_read_only_permission_view_path)
+        self.assertEqual(no_response.status_code, status.HTTP_403_FORBIDDEN)
+        # safe request
+        safe_response = self.client.get(self.has_is_self_or_read_only_permission_view_path)
+        self.assertEqual(safe_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+        # self
+        self.client.force_login(self.self_user)
+        post_data = {
+            'title': 'A test post'
+        }
+        self_response = self.client.post(self.has_is_self_or_read_only_permission_view_path, post_data)
+        self.assertEqual(self_response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
+
+    def test_is_self_or_admin_read_only_permission(self):
+        # not self and not admin
+        self.client.force_login(self.not_self_user)
+        no_response = self.client.get(self.has_is_self_or_admin_read_only_permission_view_path)
+        self.assertEqual(no_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.client.logout()
+        # self
+        self.client.force_login(self.self_user)
+        comment_post = Post.objects.create(author=self.self_user, title='A test post')
+        post_data = {
+            'post': reverse('post-detail', kwargs={'pk': comment_post.pk}),
+            'comment': 'A test comment'
+        }
+        self_response = self.client.post(self.has_is_self_or_admin_read_only_permission_view_path, post_data)
+        self.assertEqual(self_response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
+        # admin and safe request
+        self.client.force_login(self.superuser)
+        admin_response = self.client.get(self.has_is_self_or_admin_read_only_permission_view_path)
+        self.assertEqual(admin_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+
+
 class CustomUserRateThrottleTests(APITestCase):
 
     # to not affect other tests
@@ -281,7 +365,7 @@ class CustomUserRateThrottleTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = CustomUser.objects.create_superuser(
+        cls.user = get_user_model().objects.create_superuser(
             username='testuser',
             password='testpass123',
         )

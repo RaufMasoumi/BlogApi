@@ -4,6 +4,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from django_project.settings import REST_FRAMEWORK
 from .models import Tag, Post, Comment, Reply
+from .views import PostListCreateView, PostDetailUpdateDeleteView
 # Create your tests here.
 
 NOT_CONTAINS_TEXT = 'Hi there I should not be here!'
@@ -102,6 +103,7 @@ class PostTests(APITestCase):
         self.client.force_login(self.user)
         should_see_response = self.client.get(self.post_list)
         self.assertContains(should_see_response, self.draft_post)
+        self.client.logout()
 
     def test_post_detail_view(self):
         response = self.client.get(reverse('post-detail', kwargs={'pk': self.post.pk}))
@@ -126,9 +128,7 @@ class PostTests(APITestCase):
     def test_post_update_view_with_permissions(self):
         self.client.force_login(self.user)
         will_be_updated_post, _ = Post.objects.get_or_create(title='A new post', author=self.user)
-        data = {
-            'title': 'A new post (updated)',
-        }
+        data = {'title': 'A new post (updated)'}
         response = self.client.put(reverse('post-detail', kwargs={'pk': will_be_updated_post.pk}), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         will_be_updated_post.refresh_from_db()
@@ -391,6 +391,63 @@ class ReplyTests(APITestCase):
         self.assertNotContains(response, not_contains_reply)
 
 
+class PermissionTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.author_user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        cls.not_author_user = get_user_model().objects.create_user(
+            username='testuser1',
+            password='testpass1123'
+        )
+        cls.post = Post.objects.create(
+            author=cls.author_user,
+            title='test post',
+            description='A test post description',
+            status='p'
+        )
+        cls.has_is_authenticated_or_read_only_permission_view_path = reverse('post-list')
+        cls.has_is_author_or_read_only_permission_view_path = reverse('post-detail', kwargs={'pk': cls.post.pk})
+
+    def test_is_authenticated_or_read_only_permission(self):
+        # not authenticated user and not safe request
+        no_response = self.client.post(self.has_is_authenticated_or_read_only_permission_view_path)
+        self.assertEqual(no_response.status_code, status.HTTP_403_FORBIDDEN)
+        # safe request
+        safe_response = self.client.get(self.has_is_authenticated_or_read_only_permission_view_path)
+        self.assertEqual(safe_response.status_code, status.HTTP_200_OK)
+        # authenticated user
+        self.client.force_login(self.not_author_user)
+        post_data = {
+            'title': 'test post'
+        }
+        unsafe_response = self.client.post(self.has_is_authenticated_or_read_only_permission_view_path, post_data)
+        self.assertEqual(unsafe_response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
+        
+    def test_is_author_or_read_only_permission(self):
+        self.client.force_login(self.not_author_user)
+        # not author and not safe request
+        no_response = self.client.put(self.has_is_author_or_read_only_permission_view_path)
+        self.assertEqual(no_response.status_code, status.HTTP_403_FORBIDDEN)
+        # safe request
+        safe_response = self.client.get(self.has_is_author_or_read_only_permission_view_path)
+        self.assertEqual(safe_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+        # author
+        self.client.force_login(self.author_user)
+        put_data = {
+            'title': 'test post (updated)',
+        }
+        put_response = self.client.put(self.has_is_author_or_read_only_permission_view_path, put_data)
+        self.assertEqual(put_response.status_code, status.HTTP_200_OK)
+        self.client.logout()
+
+
+# so that the throttling does not affect the test.
 @override_settings(REST_FRAMEWORK=THROTTLING_OFF_SETTING)
 class CustomPageNumberPaginationTests(APITestCase):
 

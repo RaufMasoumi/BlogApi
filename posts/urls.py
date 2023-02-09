@@ -15,4 +15,3 @@ urlpatterns = [
     path('comments/replies/<int:pk>/adds/', ReplyAddsListView.as_view(), name='reply-adds-list'),
 ]
 
-# urlpatterns += router.urls

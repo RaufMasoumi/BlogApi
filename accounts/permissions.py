@@ -1,40 +1,38 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
+from posts.permissions import is_request_safe_method
 
 
-class IsAdminOrIsSelf(BasePermission):
+class IsSelfOrAdmin(BasePermission):
     """
-        Checks that the requested user is the same user of the view or the user is an Admin.
+        Checks that the requested user is the view object or the user is an Admin.
     """
     def has_object_permission(self, request, view, obj):
-        if request.user.is_staff:
-            return True
-        elif obj == request.user:
+        if request.user.is_staff or obj == request.user:
             return True
 
         return False
 
 
-class IsUserOrReadOnly(BasePermission):
+class IsSelfOrReadOnly(BasePermission):
     """
-        Checks that if the methods are safe or the requested user is the same user of the view.
+        Checks that if the requested user is the view object or the request is safe.
     """
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-        elif view.get_object() == request.user:
+        if is_request_safe_method(request) or view.get_object() == request.user:
             return True
 
         return False
 
 
-class IsUserOrAdminReadOnly(BasePermission):
+class IsSelfOrAdminReadOnly(BasePermission):
     """
-        Checks that if the methods are safe and the user is an Admin
-        or the requested user is the same user of the view.
+        Checks that if the requested user is the view object or
+        the request is safe and the requested user is an Admin.
     """
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS and request.user.is_staff:
+        if is_request_safe_method(request) and request.user.is_staff:
             return True
+
         elif view.get_object() == request.user:
             return True
 

@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from posts.models import Post, Comment, Reply
-from .permissions import IsAdminOrIsSelf, IsUserOrReadOnly, IsUserOrAdminReadOnly
+from .permissions import IsSelfOrAdmin, IsSelfOrReadOnly, IsSelfOrAdminReadOnly
 from .base_views import UserReverseRelationListCreateView
 from .throttling import CustomUserRateThrottle
 from . import serializers, filters
@@ -30,7 +30,7 @@ class UserViewSet(ModelViewSet):
     def get_permissions(self):
         permissions = []
         if self.kwargs.get('pk'):
-            permissions.append(IsAdminOrIsSelf())
+            permissions.append(IsSelfOrAdmin())
         else:
             permissions.append(IsAdminUser())
         return permissions
@@ -39,7 +39,7 @@ class UserViewSet(ModelViewSet):
 class UserPostListView(UserReverseRelationListCreateView):
     reverse_model_class = Post
     serializer_class = serializers.UserPostListSerializer
-    permission_classes = [IsUserOrReadOnly, ]
+    permission_classes = [IsSelfOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'tags__title']
     ordering_fields = ['created_at', 'updated_at', 'status']
@@ -52,7 +52,7 @@ class UserPostListView(UserReverseRelationListCreateView):
 class UserCommentListView(UserReverseRelationListCreateView):
     reverse_model_class = Comment
     serializer_class = serializers.UserCommentListSerializer
-    permission_classes = [IsUserOrAdminReadOnly, ]
+    permission_classes = [IsSelfOrAdminReadOnly, ]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['post', 'commented_at', 'updated_at']
     filterset_class = filters.UserCommentFilterSet
@@ -65,7 +65,7 @@ class UserReplyListView(UserReverseRelationListCreateView):
     reverse_model_class = Reply
     reverse_field_related_name = 'replies'
     serializer_class = serializers.UserReplyListSerializer
-    permission_classes = [IsUserOrAdminReadOnly, ]
+    permission_classes = [IsSelfOrAdminReadOnly, ]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['comment', 'replied_at', 'updated_at']
     filterset_class = filters.UserReplyFilterSet

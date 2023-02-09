@@ -3,7 +3,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Tag, Post, Comment, Reply
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly
 from .base_views import ReverseRelationListCreateView, get_from_kwargs, make_post_queryset_for_user
 from .filters import PostFilterSet, CommentFilterSet, ReplyFilterSet
 from . import serializers
@@ -18,7 +18,7 @@ class TagDetailView(RetrieveAPIView):
 
 class PostListCreateView(ListCreateAPIView):
     serializer_class = serializers.PostListSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'author__username', 'tags__title']
     ordering_fields = ['author', 'created_at', 'updated_at']
@@ -48,7 +48,7 @@ class PostCommentListView(ReverseRelationListCreateView):
     parent_klass = Post.objects.published()
     reverse_model_class = Comment
     serializer_class = serializers.PostCommentListSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['author', 'commented_at', 'updated_at']
     filterset_class = CommentFilterSet
@@ -63,7 +63,7 @@ class PostCommentListView(ReverseRelationListCreateView):
 
 class PostTagListView(ListAPIView):
     serializer_class = serializers.TagSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     def get_queryset(self):
         post = get_from_kwargs(self.kwargs, Post)
@@ -80,7 +80,7 @@ class CommentReplyListView(ReverseRelationListCreateView):
     parent_klass = Comment
     reverse_field_related_name = 'replies'
     serializer_class = serializers.CommentReplyListSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['author', 'replied_at', 'updated_at']
     filterset_class = ReplyFilterSet
@@ -103,7 +103,7 @@ class ReplyAddsListView(ReverseRelationListCreateView):
     parent_klass = Reply
     reverse_field_related_name = 'adds'
     serializer_class = serializers.ReplyAddsListSerializer
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['author', 'replied_at', 'updated_at']
     filterset_class = ReplyFilterSet
