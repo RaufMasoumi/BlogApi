@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+import uuid
 # Create your models here.
 
 
@@ -27,6 +28,7 @@ class Post(models.Model):
         ('p', 'Published'),
         ('d', 'Draft'),
     ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=100)
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='posts')
     thumbnail = models.ImageField(upload_to='posts/thumbnails/', blank=True)
@@ -53,6 +55,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='comments')
     comment = models.CharField(max_length=150)
@@ -67,6 +70,7 @@ class Comment(models.Model):
 
 
 class Reply(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='replies')
     addsign = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='adds', blank=True, null=True)
