@@ -4,7 +4,16 @@ import uuid
 # Create your models here.
 
 
-class PostManager(models.Manager):
+class LastSubmitted:
+    order_by = None
+    creation_date_lookup_name = ''
+
+    def get_last_submitted(self):
+        return self.order_by(str(self.creation_date_lookup_name)).last()
+
+
+class PostManager(models.Manager, LastSubmitted):
+    creation_date_lookup_name = 'created_at'
 
     def draft(self):
         return self.filter(status='d')
@@ -14,6 +23,14 @@ class PostManager(models.Manager):
 
     def published(self):
         return self.filter(status='p')
+
+
+class CommentManager(models.Manager, LastSubmitted):
+    creation_date_lookup_name = 'commented_at'
+
+
+class ReplyManager(models.Manager, LastSubmitted):
+    creation_date_lookup_name = 'replied_at'
 
 
 class Tag(models.Model):
@@ -61,6 +78,7 @@ class Comment(models.Model):
     comment = models.CharField(max_length=150)
     commented_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = CommentManager()
 
     def __str__(self):
         return formatted_text(self.comment)
@@ -77,6 +95,7 @@ class Reply(models.Model):
     reply = models.CharField(max_length=150)
     replied_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = ReplyManager()
 
     class Meta:
         verbose_name_plural = 'Replies'
