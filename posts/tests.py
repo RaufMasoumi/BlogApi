@@ -37,7 +37,7 @@ class TagTests(APITestCase):
         )
 
         cls.tag = Tag.objects.create(
-            title='A test tag',
+            tag='A-test-tag',
         )
 
         cls.post = Post.objects.create(
@@ -48,14 +48,14 @@ class TagTests(APITestCase):
 
     def test_tag_model(self):
         self.assertEqual(Tag.objects.count(), 1)
-        self.assertEqual(self.tag.title, 'A test tag')
-        self.assertEqual(str(self.tag), self.tag.title)
+        self.assertEqual(self.tag.tag, 'A-test-tag')
+        self.assertEqual(str(self.tag), self.tag.tag)
         self.assertTrue(self.tag.posts.filter(pk=self.post.pk).exists())
 
     def test_tag_detail_view(self):
-        response = self.client.get(reverse('tag-detail', kwargs={'pk': self.tag.pk}))
+        response = self.client.get(reverse('tag-detail', kwargs={'tag': self.tag.tag}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, self.tag.title)
+        self.assertContains(response, self.tag.tag)
         self.assertContains(response, self.post.title)
         self.assertNotContains(response, NOT_CONTAINS_TEXT)
 
@@ -81,7 +81,7 @@ class PostTests(APITestCase):
             description='A draft test post description'
         )
         cls.tag = Tag.objects.create(
-            title='A test tag'
+            tag='A-test-tag'
         )
         cls.post.tags.add(cls.tag)
         cls.post_list = reverse('post-list')
@@ -215,7 +215,7 @@ class PostReverseRelationsTests(APITestCase):
             comment='A test comment',
         )
         cls.tag = Tag.objects.create(
-            title='A test tag',
+            tag='A-test-tag',
         )
         cls.post.tags.add(cls.tag)
 

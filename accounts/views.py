@@ -41,7 +41,7 @@ class UserPostListView(UserReverseRelationListCreateView):
     serializer_class = serializers.UserPostListSerializer
     permission_classes = [IsSelfOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
-    search_fields = ['title', 'description', 'tags__title']
+    search_fields = ['title', 'description', 'tags__tag']
     ordering_fields = ['created_at', 'updated_at', 'status']
     filterset_class = filters.UserPostFilterSet
 

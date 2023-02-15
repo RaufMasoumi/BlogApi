@@ -8,7 +8,7 @@ class PostListSerializer(serializers.HyperlinkedModelSerializer, nested_serializ
     author = serializers.StringRelatedField()
     short_description = serializers.CharField(read_only=True, source='make_short_description')
     comments_count = serializers.SerializerMethodField()
-    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True, required=False)
+    tags = serializers.SlugRelatedField(slug_field='tag', queryset=Tag.objects.all(), many=True, required=False)
 
     class Meta:
         model = Post
@@ -24,7 +24,7 @@ class PostListSerializer(serializers.HyperlinkedModelSerializer, nested_serializ
 
 class PostDetailSerializer(serializers.HyperlinkedModelSerializer):
     author = CustomUserNestedSerializer(read_only=True)
-    tags = serializers.SlugRelatedField(slug_field='title', queryset=Tag.objects.all(), many=True, required=False)
+    tags = serializers.SlugRelatedField(slug_field='tag', queryset=Tag.objects.all(), many=True, required=False)
     comments = nested_serializers.CommentNestedSerializer(many=True, read_only=True)
 
     class Meta:
@@ -63,7 +63,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['title', 'posts']
+        fields = ['tag', 'posts']
 
 
 class CommentDetailSerializer(serializers.HyperlinkedModelSerializer):

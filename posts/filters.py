@@ -4,7 +4,7 @@ from .models import Post, Comment, Reply
 
 class PostFilterSet(filters.FilterSet):
     author = filters.CharFilter(field_name='author__username', lookup_expr='exact', label='Author')
-    topic_icontains = filters.CharFilter(field_name='tags__title', lookup_expr='icontains',
+    topic_icontains = filters.CharFilter(field_name='tags__tag', lookup_expr='icontains',
                                          label='Topic contains')
 
     class Meta:

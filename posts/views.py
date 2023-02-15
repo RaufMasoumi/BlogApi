@@ -11,6 +11,7 @@ from . import serializers
 
 
 class TagDetailView(RetrieveAPIView):
+    lookup_field = 'tag'
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
     permission_classes = [AllowAny, ]
@@ -20,7 +21,7 @@ class PostListCreateView(ListCreateAPIView):
     serializer_class = serializers.PostListSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
-    search_fields = ['title', 'description', 'author__username', 'tags__title']
+    search_fields = ['title', 'description', 'author__username', 'tags__tag']
     ordering_fields = ['author', 'created_at', 'updated_at']
     filterset_class = PostFilterSet
 
@@ -67,7 +68,7 @@ class PostTagListView(ListAPIView):
 
     def get_queryset(self):
         post = get_from_kwargs(self.kwargs, Post)
-        return post.tags.order_by('title')
+        return post.tags.order_by('tag')
 
 
 class CommentDetailView(RetrieveUpdateDestroyAPIView):

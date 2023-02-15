@@ -34,10 +34,10 @@ class ReplyManager(models.Manager, LastSubmitted):
 
 
 class Tag(models.Model):
-    title = models.CharField(max_length=50, unique=True)
+    tag = models.SlugField(max_length=75, unique=True)
 
     def __str__(self):
-        return self.title
+        return self.tag
 
 
 class Post(models.Model):

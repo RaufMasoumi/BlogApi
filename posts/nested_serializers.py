@@ -22,6 +22,12 @@ class AddsCountMixin:
         return obj.adds.count()
 
 
+class PostNestedSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['url', 'title']
+
+
 class CommentNestedSerializer(serializers.HyperlinkedModelSerializer, RepliesCountMixin):
     author = serializers.StringRelatedField()
     short_comment = serializers.CharField(read_only=True, max_length=150, source='make_short_comment')
@@ -30,12 +36,6 @@ class CommentNestedSerializer(serializers.HyperlinkedModelSerializer, RepliesCou
     class Meta:
         model = Comment
         fields = ['url', 'author', 'short_comment', 'replies_count']
-
-
-class PostNestedSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Post
-        fields = ['url', 'title']
 
 
 class ReplyNestedSerializer(serializers.HyperlinkedModelSerializer, AddsCountMixin):
