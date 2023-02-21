@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    slug = models.SlugField(max_length=150, unique=True)
+    slug = models.SlugField(max_length=150, unique=True, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
 
     def __str__(self):
@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     def get_safe_password(self):
         return '*' * len(self.password)
 
-
-for user in CustomUser.objects.all():
-    user.slug = user.username
-    user.save()
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.username
+        super().save(*args, **kwargs)

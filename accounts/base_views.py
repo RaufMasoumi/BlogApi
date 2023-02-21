@@ -14,11 +14,11 @@ class UserReverseRelationListCreateView(ReverseRelationListCreateView):
 
 
 def get_user(view_obj, or_from_request=False):
-    user_pk = None
-    if view_obj.kwargs.get('pk'):
-        user_pk = view_obj.kwargs['pk']
+    user_slug = None
+    if view_obj.kwargs.get('slug'):
+        user_slug = view_obj.kwargs['slug']
 
     elif or_from_request and view_obj.request.user.is_authenticated:
-        user_pk = view_obj.request.user.pk
+        user_slug = view_obj.request.user.slug
 
-    return get_object_or_404(get_user_model(), pk=user_pk)
+    return get_object_or_404(get_user_model(), slug=user_slug)

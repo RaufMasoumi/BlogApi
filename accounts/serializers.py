@@ -6,7 +6,7 @@ from posts.nested_serializers import PostNestedSerializer, CommentNestedSerializ
 
 
 class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, CommentsCountMixin):
-    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail', lookup_field='slug')
     password_confirm = serializers.CharField(write_only=True, help_text='Required. should be same as password')
     posts_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
@@ -35,7 +35,7 @@ class CustomUserListSerializer(serializers.ModelSerializer, PostsCountMixin, Com
 
 
 class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCountMixin):
-    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail', lookup_field='slug')
     password = serializers.CharField(read_only=True, source='get_safe_password')
     posts = PostNestedSerializer(read_only=True, many=True)
     comments_count = serializers.SerializerMethodField()
@@ -50,14 +50,14 @@ class CustomUserDetailSerializerVersion1(serializers.ModelSerializer, CommentsCo
 
 
 class CustomUserDetailSerializer(serializers.ModelSerializer, CommentsCountMixin):
-    profile = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    profile = serializers.HyperlinkedIdentityField(view_name='user-detail', lookup_field='slug')
     password = serializers.CharField(read_only=True, source='get_safe_password')
     posts = PostNestedSerializer(read_only=True, many=True)
     comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ['profile', 'username', 'password', 'email', 'first_name', 'last_name', 'phone_number',
+        fields = ['profile', 'username', 'password', 'email', 'first_name', 'last_name', 'phone_number', 'slug',
                   'date_joined', 'posts', 'comments_count']
         extra_kwargs = {
             'date_joined': {'read_only': True}

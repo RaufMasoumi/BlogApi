@@ -25,7 +25,7 @@ class CustomUserTests(APITestCase):
             password='testpass123',
             phone_number='858585',
         )
-        cls.user_detail = reverse('user-detail', kwargs={'pk': cls.user.pk})
+        cls.user_detail = reverse('user-detail', kwargs={'slug': cls.user.slug})
         cls.user_list = reverse('user-list')
 
     def test_model_count(self):
@@ -38,6 +38,9 @@ class CustomUserTests(APITestCase):
     def test_user_creation(self):
         self.assertEqual(self.user.username, 'testuser')
         self.assertEqual(self.user.phone_number, '858585')
+
+    def test_user_slug_auto_population(self):
+        self.assertEqual(self.user.slug, self.user.username)
 
     def test_user_list_view_with_permissions(self):
         self.client.force_login(self.superuser)
@@ -92,7 +95,7 @@ class CustomUserTests(APITestCase):
             'username': 'testuser1',
             'phone_number': '757575',
         }
-        response = self.client.put(reverse('user-detail', kwargs={'pk': will_be_updated_user.pk}), data=data)
+        response = self.client.put(reverse('user-detail', kwargs={'slug': will_be_updated_user.slug}), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         will_be_updated_user.refresh_from_db()
         self.assertEqual(will_be_updated_user.phone_number, data['phone_number'])
@@ -101,7 +104,7 @@ class CustomUserTests(APITestCase):
     def test_user_delete_view_with_permissions(self):
         self.client.force_login(self.superuser)
         will_be_deleted_user, _ = CustomUser.objects.get_or_create(username='testuser1')
-        response = self.client.delete(reverse('user-detail', kwargs={'pk': will_be_deleted_user.pk}))
+        response = self.client.delete(reverse('user-detail', kwargs={'slug': will_be_deleted_user.slug}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(CustomUser.objects.count(), 2)
         self.assertFalse(CustomUser.objects.filter(username='testuser1').exists())
@@ -178,7 +181,7 @@ class CustomUserReverseRelationsTests(APITestCase):
         cls.user_reply_list = reverse('user-reply-list')
 
     def test_user_getting_views_with_or_without_pk(self):
-        with_pk_path = reverse('user-post-list', kwargs={'pk': self.user.pk})
+        with_pk_path = reverse('user-post-list', kwargs={'slug': self.user.slug})
         with_pk_response = self.client.get(with_pk_path)
         self.assertEqual(with_pk_response.status_code, status.HTTP_200_OK)
         self.client.force_login(self.user)
@@ -294,9 +297,10 @@ class PermissionTests(APITestCase):
             username='testuser1',
             password='testpass1123'
         )
-        cls.has_is_self_or_admin_permission_view_path = reverse('user-detail', kwargs={'pk': cls.self_user.pk})
-        cls.has_is_self_or_read_only_permission_view_path = reverse('user-post-list', kwargs={'pk': cls.self_user.pk})
-        cls.has_is_self_or_admin_read_only_permission_view_path = reverse('user-comment-list', kwargs={'pk': cls.self_user.pk})
+        cls.has_is_self_or_admin_permission_view_path = reverse('user-detail', kwargs={'slug': cls.self_user.slug})
+        cls.has_is_self_or_read_only_permission_view_path = reverse('user-post-list', kwargs={'slug': cls.self_user.slug})
+        cls.has_is_self_or_admin_read_only_permission_view_path = reverse('user-comment-list',
+                                                                          kwargs={'slug': cls.self_user.slug})
 
     def test_is_self_or_admin_permission(self):
         # not self and not admin

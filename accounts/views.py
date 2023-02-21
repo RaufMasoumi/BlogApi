@@ -12,6 +12,7 @@ from . import serializers, filters
 
 
 class UserViewSet(ModelViewSet):
+    lookup_field = 'slug'
     queryset = get_user_model().objects.all().order_by('date_joined')
     throttle_classes = [CustomUserRateThrottle, ]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
@@ -20,7 +21,7 @@ class UserViewSet(ModelViewSet):
     ordering_fields = ['username', 'first_name', 'last_name', 'date_joined']
 
     def get_serializer_class(self):
-        if self.kwargs.get('pk'):
+        if self.detail:
             if self.request.version == '1.0':
                 return serializers.CustomUserDetailSerializerVersion1
             elif self.request.version == '2.0':
@@ -29,7 +30,7 @@ class UserViewSet(ModelViewSet):
 
     def get_permissions(self):
         permissions = []
-        if self.kwargs.get('pk'):
+        if self.detail:
             permissions.append(IsSelfOrAdmin())
         else:
             permissions.append(IsAdminUser())
