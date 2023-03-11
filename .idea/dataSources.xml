@@ -29,5 +29,12 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="BlogApi" uuid="5d85c344-2078-495b-8703-4abf2b59714f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/BlogApi</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
