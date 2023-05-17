@@ -5,3 +5,5 @@ WORKDIR blogapi/
 COPY Pipfile Pipfile.lock ./
 RUN python -m pip install pipenv && pipenv install --system
 COPY . .
+EXPOSE 8000
+CMD ["gunicorn", "django_project.wsgi", "-b", "0.0.0.0:8000"]
