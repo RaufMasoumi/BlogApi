@@ -187,8 +187,9 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
     'http://localhost:8000',
+    'https://blogapi1-raoufrm93.b4a.run',
 )
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'https://blogapi1-raoufrm93.b4a.run']
 
 
 # drf-spectacular configurations
