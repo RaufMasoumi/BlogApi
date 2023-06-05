@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: gunicorn django_project.wsgi -b 0.0.0.0:8000
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/blogapi
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://raufmasoumi:secret@postgres:5432/BlogApi
+
+
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=raufmasoumi
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=BlogApi
+
+volumes:
+  postgres_data:
