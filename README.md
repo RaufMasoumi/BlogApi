@@ -15,7 +15,7 @@ You can name BlogApi as:
 
 The primitive idea of this project is from [Django For APIs](https://djangoforapis.com/) book.
 
-The project has been deployed to Heroku and you can experience it at [BlogApi heroku](https://rauf-blogapi.herokuapp.com/).
+The project has been deployed to Back4App and you can experience it at [BlogApi Back4App](https://blogapi1-raoufrm93.b4a.run/).
 
 As this is a perfect backend project, the requests of the front-end developers for collaboration are gladly accepted.
 
@@ -43,7 +43,8 @@ BlogApi uses all of these technologies to being a stable and reliable backend:
 - [Django](https://www.djangoproject.com/) - An enormous Python-based backend web framework.
 - [DRF](https://www.django-rest-framework.org/) - A strong and flexible Django-based framework for building web APIs.
 - [PostgreSQL](https://www.postgresql.org/) - A powerful, open source object-relational database system.
-- [Heroku](https://www.heroku.com/) - A cloud platform as a service.
+- [Back4App](https://www.back4app.com/) - A container as a service platform.
+- [Neon](https://neon.tech/) - A database as a service platform.
 
 By assembling all of these technologies in one place for making an idea real, BlogApi now has a heart of Python that pumps the power throughout the project, a body of Django providing ability to move, and magic of DRF to talk to you and make you happy!
 
@@ -241,11 +242,102 @@ BlogApi has almost 50 tests that are testing the whole project. Till here, you d
 If you wish to run the tests and see the result, please go to the [Running Tests](#running-tests) part.
 
 
+## Docker
+Docker is a platform that use OS-level virtualization to deliver software in packages called containers. One of the best advantages of docker is that it makes building, deploying and testing processes of the project very easy and comfortable; So as a developer who wants to test some project locally you really don't need to do any extra thing than lifting the project's docker container up.
+
+BlogApi now supports docker and uses docker compose for dockerizing the project itself and the Postgres database for the best experience.
+
+In the [Installation](#installation) section you will see that how easy is testing BlogApi.
+
+
 ## Installation
+As BlogApi supports docker, so running the project in development can be done in two ways: You can install and run the project with docker or just using the traditional alternative way.
+
+If you are not comfortable with docker you can pass docker installation and go to the [alternative installation](#alternative-installation) section. 
 
 BlogApi as a django project in the first step needs Python; So first install it.
 
-The next step is creating a python virtual environment; There are many choices to do that but in this project for increasing comfort, Pipenv has been chosen.
+### Docker installation
+The first thing that you need in using a dockerized project, is the Docker itself. So in the start you have to install the Docker Desktop.
+
+If you are using Mac, you can install Docker Desktop from [Installing Docker Desktop in mac](https://docs.docker.com/desktop/install/mac-install/);
+
+Or if you are using Windows, you should go to [Installing Docker Desktop in windows](https://docs.docker.com/desktop/install/windows-install/).
+
+#### Launching Docker Compose
+Docker Compose is a tool that helps to define multi-container docker applications much easier. With Compose, we can create a YAML file to define the services and with a single command, can spin everything up or tear it all down.
+
+We will use docker compose to have the BlogApi and [PostgreSQL](https://www.postgresql.org/) together for best experience.
+
+The first step is creating a docker compose file for local development; As we have docker-compose-production.yml file so making the one that is suitable for local development is easy.
+
+Also, for using django projects you must have a secret key; so we will generate a new one.
+
+On Mac using Bash Shell execute:
+```sh
+cd BlogApi
+touch docker-compose.yml
+```
+on Windows Command Prompt run:
+```sh
+cd BlogApi
+type nul > docker-compose.yml
+```
+
+And then generate the secret key using the command below and copy it:
+```sh
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+After that, copy all lines of docker-compose-production.yml file into new-created docker-compose.yml file.
+
+And then add the environment variables, below the only variable that exists and replace your new-generated secret key:
+```sh
+...
+environment:
+  - DATABASE_URL=postgresql://raufmasoumi:secret@postgres:5432/BlogApi
+  # New environment variables
+  - DJANGO_SECRET_KEY=YOUR NEW-GENERATED SECRET KEY
+  - DJANGO_DEBUG=True
+  - DJANGO_SECURE_SSL_REDIRECT=false
+  - DJANGO_SECURE_HSTS_PRELOAD=false
+  - DJANGO_SECURE_HSTS_SECONDS=0
+  - DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=false
+  - DJANGO_CSRF_COOKIE_SECURE=false
+  - DJANGO_SESSION_COOKIE_SECURE=false
+...
+```
+
+That's it! let's go to run the containers.
+
+
+#### Running the containers
+Now we are ready to run the project with docker compose. To spin up the containers, just run:
+```sh
+docker compose up --build
+```
+
+And then migrate the migrations:
+```sh
+docker compose exec app python manage.py migrate
+```
+
+Open your browser at:
+```sh
+127.0.0.1:8000
+```
+or
+```sh
+localhost:8000
+```
+
+And finally you can see the BlogApi's home page!
+
+
+### Alternative installation
+If you don't wish to use docker, you can just install the project using the traditional way.
+
+First we will create a python virtual environment; There are many choices to do that but in this project for increasing comfort, [Pipenv](https://pipenv.pypa.io/) has been chosen.
 
 First step is installing Pipenv itself:
 
@@ -262,13 +354,13 @@ pipenv shell
 ```
 
 
-## Development
+#### Development
 
 Now you are ready to run the project in your local server.
 
 First you need to create a .env file to your project level directory, so you can set the environment variables for development, because the variables' defaults were set for production environment for security reasons.
 
-On macOS using the bash shell: 
+On Mac using Bash Shell: 
 ```sh
 touch .env
 ```
@@ -279,7 +371,7 @@ type nul > .env
 
 Then generate a new django secret key:
 ```sh
-python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
 Copy variables below to .env and replace your secret key:
@@ -304,13 +396,22 @@ Open your browser at:
 ```sh
 127.0.0.1:8000
 ```
-and you will see BlogApi's post list browsable API page!
+or
+```sh
+localhost:8000
+```
+
+and you will see BlogApi's home page!
 
 
 ### Running Tests
-To run the project tests, just execute this command:
+To run the project tests, just execute:
 ```sh
 python manage.py test
+```
+Or if you are using dockerized version:
+```sh
+docker compose exec app python manage.py test
 ```
 
 
